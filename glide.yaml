@@ -1,0 +1,6 @@
+package: gitlab.com/monetha/mth-serva-bazo
+import:
+- package: github.com/satori/go.uuid
+  version: ^1.2.0
+- package: go.uber.org/zap
+  version: ^1
