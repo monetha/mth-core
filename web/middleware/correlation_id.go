@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 	webcontext "gitlab.com/monetha/mth-serva-bazo/web/context"
 )
 
