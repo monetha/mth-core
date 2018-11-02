@@ -158,6 +158,13 @@ func (l *Logger) Info(msg string, fields ...zapcore.Field) {
 	zl.Info(msg, fields...)
 }
 
+// Error logs a message at errorLevel. The message includes any fields passed
+// at the log site, as well as any fields accumulated on the logger.
+func (l *Logger) Error(msg string, fields ...zapcore.Field) {
+	zl := (*zap.Logger)(l).WithOptions(zap.AddCallerSkip(1))
+	zl.Error(msg, fields...)
+}
+
 func syslogLevelEncoder(l zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 	enc.AppendInt(syslogCode(l))
 }
