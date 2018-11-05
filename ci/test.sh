@@ -10,7 +10,7 @@ if [ -z "$CI_PIPELINE_ID" ]
 fi
 
 GOLANG_VERSION=1.11
-PACKAGE_NAME=gitlab.com/monetha/mth-serva-bazo
+PACKAGE_NAME=gitlab.com/monetha/mth-core
 PACKAGE_FULL_PATH=/go/src/$PACKAGE_NAME
 
 docker run -i --rm \

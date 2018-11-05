@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	uuid "github.com/satori/go.uuid"
-	webcontext "gitlab.com/monetha/mth-serva-bazo/web/context"
+	webcontext "gitlab.com/monetha/mth-core/web/context"
 )
 
 const (
