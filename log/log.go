@@ -31,6 +31,8 @@ func init() {
 func NewDevelopment() *zap.Logger {
 	config := zap.NewDevelopmentConfig()
 	config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
+	// turn off logging stack traces at warn level
+	config.Development = false
 	l, err := config.Build()
 	if err != nil {
 		panic(fmt.Sprintf("failed to build development logger: %v", err))
