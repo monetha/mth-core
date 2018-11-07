@@ -117,6 +117,21 @@ func MerchantID(id int64) zapcore.Field {
 	return zap.Int64("merchant_id", id)
 }
 
+// CallbackURL constructs a "callback_url" field with given url.
+func CallbackURL(url string) zapcore.Field {
+	return zap.String("callback_url", url)
+}
+
+// HTTPRequest constructs a "http_request" field with given req.
+func HTTPRequest(req interface{}) zapcore.Field {
+	return zap.Reflect("http_request", req)
+}
+
+// HTTPResponse constructs a "http_response" field with given resp.
+func HTTPResponse(resp interface{}) zapcore.Field {
+	return zap.Reflect("http_response", resp)
+}
+
 // FieldFloatInt64 creates a new zapcore field
 func FieldFloatInt64(field string, val int64) zapcore.Field {
 	return zap.Int64(field, val)
