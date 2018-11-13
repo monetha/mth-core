@@ -1,6 +1,8 @@
-hash: 667dd0eac70f582468afa99a6bfc45ec9c8fce1d67b097742c450b1378854724
-updated: 2018-10-29T14:23:59.191310439+03:00
+hash: 1fa9b61dc84bab0d040cdacfbbb5fe1f4154d300c3f5e66632c6e341a27d2d2e
+updated: 2018-11-13T16:03:30.5527592+02:00
 imports:
+- name: github.com/dgrijalva/jwt-go
+  version: 06ea1031745cb8b3dab3f6a236daf2b0aa468b7e
 - name: github.com/satori/go.uuid
   version: f58768cc1a7a7e77a3bd49e98cdd21419399b6a3
 - name: go.uber.org/atomic
