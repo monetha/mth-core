@@ -5,30 +5,22 @@ import (
 
 	uuid "github.com/satori/go.uuid"
 	webcontext "gitlab.com/monetha/mth-core/web/context"
-)
-
-const (
-	// HeaderCorrelationID is the name of the correlation id header
-	HeaderCorrelationID = "mth-correlation-id"
-)
-
-var (
-	headerCorrelationIDCanonical = http.CanonicalHeaderKey(HeaderCorrelationID)
+	"gitlab.com/monetha/mth-core/web/header"
 )
 
 // CorrelationIDHandler adds or forward mth-correlation-id header
 func CorrelationIDHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		correlationID := getOrCreateNewCorrelationID(r)
-		w.Header().Set(HeaderCorrelationID, correlationID)
+		w.Header().Set(header.HeaderKeyCorrelationID, correlationID)
 		ctx := webcontext.WithCorrelationID(r.Context(), correlationID)
 		h.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func getOrCreateNewCorrelationID(r *http.Request) string {
-	if val, ok := r.Header[headerCorrelationIDCanonical]; ok {
-		return val[0]
+	if cid := header.CorrelationID(r); cid != nil {
+		return *cid
 	}
 	return uuid.NewV4().String()
 }

@@ -67,6 +67,14 @@ func Err(err error) zapcore.Field {
 	return zap.Error(err)
 }
 
+// FieldsFrom returns fields from a map[string]interface{}.
+func FieldsFrom(m map[string]interface{}) (s []zapcore.Field) {
+	for k, v := range m {
+		s = append(s, zap.Any(k, v))
+	}
+	return
+}
+
 // UserID constructs a "user_id" field with the given ID.
 func UserID(id int64) zapcore.Field {
 	return zap.Int64("user_id", id)
@@ -105,11 +113,6 @@ func PhoneCode(code string) zapcore.Field {
 // CorrelationID constructs a "correlation_id field with the given id.
 func CorrelationID(ID string) zapcore.Field {
 	return zap.String("correlation_id", ID)
-}
-
-// AmznTraceID constructs a x_amzn_trace_id field with the given id.
-func AmznTraceID(ID string) zapcore.Field {
-	return zap.String("x-amzn-trace-id", ID)
 }
 
 // MerchantID constructs a "merchant_id" field with given ID.
