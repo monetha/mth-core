@@ -1,4 +1,4 @@
-package clientapi
+package rest
 
 import (
 	"bytes"
@@ -17,8 +17,8 @@ import (
 
 // Types
 
-// ClientAPI is an HTTP Request builder and sender.
-type ClientAPI struct {
+// Client is an HTTP Request builder and sender.
+type Client struct {
 	// http Client for doing requests
 	httpClient *http.Client
 	// raw url string for requests
@@ -27,7 +27,8 @@ type ClientAPI struct {
 
 // Endpoint is HTTP endpoint
 type Endpoint struct {
-	API *ClientAPI
+	// Client is an HTTP Client used to make request to this endpoint
+	Client *Client
 	// raw url string for requests
 	rawURL string
 	// HTTP method (GET, POST, etc.)
@@ -42,7 +43,7 @@ type Endpoint struct {
 	context context.Context
 }
 
-// ErrorResponse is error response from ClientApi
+// ErrorResponse is error response from Client
 type ErrorResponse struct {
 	Status  int64
 	Code    string `json:"code"`
@@ -63,19 +64,19 @@ func (e ErrorResponse) IsResourceNotFoundErr() bool {
 	return e.Code == "RESOURCE_NOT_FOUND"
 }
 
-// NewClientAPI returns a new ClientAPI with an http DefaultClient.
-func NewClientAPI(apiBaseURL string) *ClientAPI {
-	return &ClientAPI{
+// NewClient returns a new Client with an http DefaultClient.
+func NewClient(apiBaseURL string) *Client {
+	return &Client{
 		httpClient: http.DefaultClient,
 		baseURL:    apiBaseURL,
 	}
 }
 
 // NewEndpoint returns a new Endpoint with default 'GET' method
-func (a *ClientAPI) NewEndpoint(ctx context.Context) *Endpoint {
+func (client *Client) NewEndpoint(ctx context.Context) *Endpoint {
 	e := &Endpoint{
-		API:     a,
-		rawURL:  a.baseURL,
+		Client:  client,
+		rawURL:  client.baseURL,
 		header:  make(http.Header),
 		method:  "GET",
 		context: ctx,
@@ -87,14 +88,14 @@ func (a *ClientAPI) NewEndpoint(ctx context.Context) *Endpoint {
 
 // WithClient sets the http Client used to do requests. If a nil client is given,
 // the http.DefaultClient will be used.
-func (a *ClientAPI) WithClient(httpClient *http.Client) *ClientAPI {
+func (client *Client) WithClient(httpClient *http.Client) *Client {
 	if httpClient == nil {
-		a.httpClient = http.DefaultClient
+		client.httpClient = http.DefaultClient
 	} else {
-		a.httpClient = httpClient
+		client.httpClient = httpClient
 	}
 
-	return a
+	return client
 }
 
 // Path extends the Endpoint rawURL with the given path by resolving the reference to
@@ -249,17 +250,17 @@ func (e *Endpoint) Send(successV, failureV interface{}) (*http.Response, error) 
 	if err != nil {
 		return nil, err
 	}
-	return e.Do(req, successV, failureV)
+	return e.do(req, successV, failureV)
 }
 
-// Do sends an HTTP request and returns the response. Success responses (2XX or 3XX)
-// are JSON decoded into the value pointed to by successV and other responses
-// are JSON decoded into the value pointed to by failureV.
+// do sends an HTTP request and returns the response.
+// Success responses (2XX or 3XX) are JSON decoded into the value pointed to by successV.
+// Other responses are JSON decoded into the value pointed to by failureV.
 // Any error sending the request or decoding the response is returned.
-func (e *Endpoint) Do(req *http.Request, successV, failureV interface{}) (*http.Response, error) {
+func (e *Endpoint) do(req *http.Request, successV, failureV interface{}) (*http.Response, error) {
 	RequestLogger(req).Info("http request")
 
-	resp, err := e.API.httpClient.Do(req)
+	resp, err := e.Client.httpClient.Do(req)
 	l := ResponseLogger(resp)
 	if err != nil {
 		l.Error("http response")
