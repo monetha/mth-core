@@ -43,27 +43,6 @@ type Endpoint struct {
 	context context.Context
 }
 
-// ErrorResponse is error response from Client
-type ErrorResponse struct {
-	Status  int64
-	Code    string `json:"code"`
-	Message string `json:"message"`
-}
-
-func (e ErrorResponse) Error() string {
-	return e.Message
-}
-
-// IsValidationErr checks if error is validation error
-func (e ErrorResponse) IsValidationErr() bool {
-	return e.Code == "VALIDATION_ERROR"
-}
-
-// IsResourceNotFoundErr checks if error is resource not found error
-func (e ErrorResponse) IsResourceNotFoundErr() bool {
-	return e.Code == "RESOURCE_NOT_FOUND"
-}
-
 // NewClient returns a new Client with an http DefaultClient.
 func NewClient(apiBaseURL string) *Client {
 	return &Client{
@@ -239,18 +218,26 @@ func addHeaders(req *http.Request, header http.Header) {
 	}
 }
 
-// Send creates a new HTTP request and returns the response. Success
-// responses (2XX or 3XX) are JSON decoded into the value pointed to by successV and
+// SendAndParse creates a new HTTP request and parses response.
+// Success responses (2XX or 3XX) are JSON decoded into the value pointed to by successV and
 // other responses are JSON decoded into the value pointed to by failureV.
 // Any error creating the request, sending it, or decoding the response is
 // returned.
-// Send is shorthand for calling Request and Do.
-func (e *Endpoint) Send(successV, failureV interface{}) (*http.Response, error) {
+func (e *Endpoint) SendAndParse(successV, failureV interface{}) (*http.Response, error) {
 	req, err := e.Request()
 	if err != nil {
 		return nil, err
 	}
 	return e.do(req, successV, failureV)
+}
+
+// Send creates a new HTTP request and returns the response.
+func (e *Endpoint) Send() (*http.Response, error) {
+	req, err := e.Request()
+	if err != nil {
+		return nil, err
+	}
+	return e.do(req, nil, nil)
 }
 
 // do sends an HTTP request and returns the response.
