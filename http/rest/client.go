@@ -9,10 +9,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"gitlab.com/monetha/mth-core/log"
+	httplog "gitlab.com/monetha/mth-core/http/log"
 	webcontext "gitlab.com/monetha/mth-core/web/context"
 	h "gitlab.com/monetha/mth-core/web/header"
-	"go.uber.org/zap"
 )
 
 // Types
@@ -231,24 +230,15 @@ func (e *Endpoint) SendAndParse(successV, failureV interface{}) (*http.Response,
 	return e.do(req, successV, failureV)
 }
 
-// Send creates a new HTTP request and returns the response.
-func (e *Endpoint) Send() (*http.Response, error) {
-	req, err := e.Request()
-	if err != nil {
-		return nil, err
-	}
-	return e.do(req, nil, nil)
-}
-
 // do sends an HTTP request and returns the response.
 // Success responses (2XX or 3XX) are JSON decoded into the value pointed to by successV.
 // Other responses are JSON decoded into the value pointed to by failureV.
 // Any error sending the request or decoding the response is returned.
 func (e *Endpoint) do(req *http.Request, successV, failureV interface{}) (*http.Response, error) {
-	RequestLogger(req).Info("http request")
+	httplog.RequestLogger(req).Info("http request")
 
 	resp, err := e.Client.httpClient.Do(req)
-	l := ResponseLogger(resp)
+	l := httplog.ResponseLogger(resp)
 	if err != nil {
 		l.Error("http response")
 		return resp, err
@@ -299,22 +289,4 @@ func decodeResponseJSON(resp *http.Response, successV, failureV interface{}) err
 // Caller must provide a non-nil v and close the resp.Body.
 func decodeResponseBodyJSON(resp *http.Response, v interface{}) error {
 	return json.NewDecoder(resp.Body).Decode(v)
-}
-
-// RequestLogger adds zap fields to log http request
-func RequestLogger(r *http.Request) *log.Logger {
-	l := webcontext.NewLogger(r.Context())
-	return l.With(log.HTTPHeader(r.Header),
-		log.RequestURL(*r.URL),
-		log.RequestMethod(r.Method))
-}
-
-// ResponseLogger adds zap fields to log http response
-func ResponseLogger(r *http.Response) *log.Logger {
-	if r != nil {
-		return log.With(log.HTTPHeader(r.Header),
-			log.StatusCode(r.StatusCode))
-	}
-
-	return log.With(zap.Any("http_response", nil))
 }
