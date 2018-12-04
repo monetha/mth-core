@@ -41,7 +41,7 @@ unused: vendor tools ; $(info $(M) checking Go code for unused constants, variab
 
 .PHONY: static-check
 static-check: vendor tools ; $(info $(M) detecting bugs and inefficiencies in code…)
-	staticcheck $$(glide novendor)
+	staticcheck -version $$(glide novendor)
 
 .PHONY: lint
 lint: vendor tools ; $(info $(M) running golint…)

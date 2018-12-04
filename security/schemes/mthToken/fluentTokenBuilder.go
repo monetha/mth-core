@@ -3,7 +3,7 @@ package mthtoken
 import (
 	"fmt"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	coreJwt "gitlab.com/monetha/mth-core/security/jwt"
 )
 
