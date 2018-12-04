@@ -9,6 +9,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
+	"net/url"
 	"sync"
 
 	"go.uber.org/zap"
@@ -133,6 +135,44 @@ func HTTPRequest(req interface{}) zapcore.Field {
 // HTTPResponse constructs a "http_response" field with given resp.
 func HTTPResponse(resp interface{}) zapcore.Field {
 	return zap.Reflect("http_response", resp)
+}
+
+// HTTPHeader constructs a "http_header" field with the given header.
+func HTTPHeader(h http.Header) zap.Field {
+	// Copy header values to do not modify current request header
+	headers := make(http.Header)
+	for key, values := range h {
+		for _, value := range values {
+			headers.Add(key, value)
+		}
+	}
+
+	// Remove auth token, but leave header to know that request was authorized
+	if len(headers["Authorization"]) > 0 {
+		headers.Set("Authorization", "***")
+	}
+
+	return zap.Any("http_header", headers)
+}
+
+// RequestURL constructs a "request_url" field with the given url
+func RequestURL(url url.URL) zap.Field {
+	return zap.String("request_url", url.String())
+}
+
+// RequestMethod constructs a "request_method" field with the given method.
+func RequestMethod(m string) zap.Field {
+	return zap.String("request_method", m)
+}
+
+// StatusCode constructs a "status_code" field with the given status code.
+func StatusCode(s int) zap.Field {
+	return zap.Int("status_code", s)
+}
+
+// BlockNumber constructs a "block_number" field with the given block number.
+func BlockNumber(n int64) zap.Field {
+	return zap.Int64("block_number", n)
 }
 
 // FieldFloatInt64 creates a new zapcore field
