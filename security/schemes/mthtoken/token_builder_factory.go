@@ -1,14 +1,14 @@
 package mthtoken
 
-import coreJwt "gitlab.com/monetha/mth-core/security/jwt"
+import corejwt "gitlab.com/monetha/mth-core/security/jwt"
 
 //TokenBuilderFactory builds new TokenBuilders
 type TokenBuilderFactory struct {
-	Signer *coreJwt.Signer
+	Signer *corejwt.Signer
 }
 
 // NewTokenBuilderFactory returns new TokenBuilderFactory
-func NewTokenBuilderFactory(signer *coreJwt.Signer) *TokenBuilderFactory {
+func NewTokenBuilderFactory(signer *corejwt.Signer) *TokenBuilderFactory {
 	return &TokenBuilderFactory{signer}
 }
 

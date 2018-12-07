@@ -4,17 +4,17 @@ import (
 	"fmt"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	coreJwt "gitlab.com/monetha/mth-core/security/jwt"
+	corejwt "gitlab.com/monetha/mth-core/security/jwt"
 )
 
 // TokenBuilder is fluent syntax for building mth-token token
 type TokenBuilder struct {
-	Signer *coreJwt.Signer
+	Signer *corejwt.Signer
 	Claims *principalClaims
 }
 
 // NewTokenBuilder creates a new fluent token builder
-func NewTokenBuilder(signer *coreJwt.Signer) *TokenBuilder {
+func NewTokenBuilder(signer *corejwt.Signer) *TokenBuilder {
 	return &TokenBuilder{signer, defaultClaims()}
 }
 
