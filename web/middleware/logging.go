@@ -2,9 +2,11 @@ package middleware
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httputil"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -32,7 +34,7 @@ func LoggingHandler(h http.Handler) http.Handler {
 
 		// call inner handler
 		lrw := web.NewLogStatusReponseWriter(w)
-		h.ServeHTTP(lrw, r)
+		recoveryErr := handleRequestWithRecovery(h, lrw, r)
 
 		end := time.Now()
 		latency := end.Sub(start)
@@ -66,15 +68,20 @@ func LoggingHandler(h http.Handler) http.Handler {
 		respHeaderLoggingFields := log.FieldsFrom(respHeaderFields)
 		l = l.With(respHeaderLoggingFields...)
 
+		logMsg := "[HTTP]"
+		if recoveryErr != nil {
+			logMsg += " " + recoveryErr.Error()
+		}
+
 		if statusCode >= 500 {
 			var rb bytes.Buffer
 			reqBytes, _ := httputil.DumpRequest(r, false)
 			rb.Write(reqBytes)
 			rb.Write(cacheReader.Bytes())
 
-			l.Error("[HTTP]", zap.String("payload", rb.String()))
+			l.Error(logMsg, zap.String("payload", rb.String()))
 		} else {
-			l.Info("[HTTP]")
+			l.Info(logMsg)
 		}
 	})
 }
@@ -95,6 +102,18 @@ func getHeaderFields(h http.Header, exclude map[string]struct{}, prefix string) 
 		}
 		m[prefix+"_"+strings.ToLower(key)] = h.Get(key)
 	}
+	return
+}
+
+func handleRequestWithRecovery(h http.Handler, w http.ResponseWriter, r *http.Request) (err error) {
+	defer func() {
+		if e := recover(); e != nil {
+			err = fmt.Errorf("PANIC: %v\n%v", e, string(debug.Stack()))
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	}()
+
+	h.ServeHTTP(w, r)
 	return
 }
 
