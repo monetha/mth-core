@@ -8,6 +8,8 @@ import (
 	"gitlab.com/monetha/mth-core/web/header"
 )
 
+var maxCorrelationIDLength = 200
+
 // CorrelationIDHandler adds or forward mth-correlation-id header
 func CorrelationIDHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +22,15 @@ func CorrelationIDHandler(h http.Handler) http.Handler {
 
 func getOrCreateNewCorrelationID(r *http.Request) string {
 	if cid := header.CorrelationID(r); cid != nil {
-		return *cid
+		return truncateString(*cid, maxCorrelationIDLength)
 	}
 	return uuid.NewV4().String()
+}
+
+func truncateString(s string, i int) string {
+	runes := []rune(s)
+	if len(runes) > i {
+		return string(runes[:i])
+	}
+	return s
 }

@@ -18,7 +18,8 @@ import (
 )
 
 var sensitiveHeaderKeys = map[string]struct{}{
-	http.CanonicalHeaderKey("Authorization"): struct{}{},
+	http.CanonicalHeaderKey("Authorization"):      struct{}{},
+	http.CanonicalHeaderKey("mth-correlation-id"): struct{}{},
 }
 
 // LoggingHandler is a middleware that will write the log to 'out' writer.
