@@ -3,12 +3,10 @@ M = $(shell printf "\033[32;1m▶▶▶▶▶\033[0m")
 TOOLS = golang.org/x/tools/cmd/goimports \
          github.com/Masterminds/glide \
          golang.org/x/lint/golint \
-         honnef.co/go/tools/cmd/staticcheck \
-         honnef.co/go/tools/cmd/gosimple \
-         honnef.co/go/tools/cmd/unused
+         honnef.co/go/tools/cmd/staticcheck
 
 .PHONY: test
-test: vendor fmt-check vet simple unused static-check lint ; $(info $(M) running tests…)
+test: vendor fmt-check vet static-check lint ; $(info $(M) running tests…)
 	go test -timeout 20s -race -v $$(glide novendor)
 
 .PHONY: tools
@@ -30,14 +28,6 @@ fmt: vendor tools ; $(info $(M) formatting the code…)
 .PHONY: vet
 vet: vendor tools ; $(info $(M) checking correctness of the code…)
 	go vet $$(glide novendor)
-
-.PHONY: simple
-simple: vendor tools ; $(info $(M) detecting code that could be rewritten in a simpler way…)
-	gosimple $$(glide novendor)
-
-.PHONY: unused
-unused: vendor tools ; $(info $(M) checking Go code for unused constants, variables, functions and types…)
-	unused $$(glide novendor)
 
 .PHONY: static-check
 static-check: vendor tools ; $(info $(M) detecting bugs and inefficiencies in code…)
