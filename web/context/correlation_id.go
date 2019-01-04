@@ -11,12 +11,13 @@ const (
 	contextKey correlationIDContextKey = iota
 )
 
-// CorrelationID returnc correlation-id from request context
-func CorrelationID(ctx context.Context) string {
-	return ctx.Value(contextKey).(string)
+// CorrelationID returns correlation ID from request context.
+func CorrelationID(ctx context.Context) (cID string) {
+	cID, _ = ctx.Value(contextKey).(string)
+	return
 }
 
-// WithCorrelationID returns a new Context carrying correlationID
+// WithCorrelationID returns a new Context carrying correlation ID.
 func WithCorrelationID(ctx context.Context, correlationID string) context.Context {
 	return context.WithValue(ctx, contextKey, correlationID)
 }
