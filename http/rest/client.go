@@ -60,8 +60,12 @@ func (client *Client) NewEndpoint(ctx context.Context) *Endpoint {
 		context: ctx,
 	}
 
-	// Add correlationID from context to request header
-	return e.WithHeader(h.HeaderKeyCorrelationID, webcontext.CorrelationID(e.context))
+	// Set correlation ID header field if it exists in context.
+	if cID := webcontext.CorrelationID(e.context); len(cID) > 0 {
+		e.WithHeader(h.HeaderKeyCorrelationID, cID)
+	}
+
+	return e
 }
 
 // WithClient sets the http Client used to do requests. If a nil client is given,
