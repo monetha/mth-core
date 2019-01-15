@@ -1,8 +1,47 @@
-hash: f6ab67e2c00214c5203590ff9f34b25707dcc30a73380c4811eefb6c8db9c913
-updated: 2018-11-19T12:38:14.824158501+01:00
+hash: 470bc89a28c1381ea2a14d41eef1ea5df83f1895318444ef84b0cf852ec2c711
+updated: 2019-01-14T14:50:35.673767452+03:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 521b25f4b05fd26bec69d9dedeb8f9c9a83939a8
+- name: github.com/aws/aws-sdk-go
+  version: aabf189db35ba7eb5a35afe6d681fc0f70954fca
+  subpackages:
+  - aws
+  - aws/awserr
+  - aws/awsutil
+  - aws/client
+  - aws/client/metadata
+  - aws/corehandlers
+  - aws/credentials
+  - aws/credentials/ec2rolecreds
+  - aws/credentials/endpointcreds
+  - aws/credentials/processcreds
+  - aws/credentials/stscreds
+  - aws/csm
+  - aws/defaults
+  - aws/ec2metadata
+  - aws/endpoints
+  - aws/request
+  - aws/session
+  - aws/signer/v4
+  - internal/ini
+  - internal/sdkio
+  - internal/sdkrand
+  - internal/sdkuri
+  - internal/shareddefaults
+  - private/protocol
+  - private/protocol/json/jsonutil
+  - private/protocol/jsonrpc
+  - private/protocol/query
+  - private/protocol/query/queryutil
+  - private/protocol/rest
+  - private/protocol/xml/xmlutil
+  - service/kinesis
+  - service/sts
+- name: github.com/beorn7/perks
+  version: 3a771d992973f24aa725d07868b467d1ddfceafb
+  subpackages:
+  - quantile
 - name: github.com/dgrijalva/jwt-go
   version: 06ea1031745cb8b3dab3f6a236daf2b0aa468b7e
 - name: github.com/go-openapi/analysis
@@ -27,18 +66,53 @@ imports:
   version: becd2f08beafcca035645a8a101e0e3e18140458
 - name: github.com/go-openapi/validate
   version: 7c1911976134d3a24d0c03127505163c9f16aa3b
+- name: github.com/golang/protobuf
+  version: aa810b61a9c79d51363740d207bb46cf8e620ed5
+  subpackages:
+  - proto
+- name: github.com/jmespath/go-jmespath
+  version: c2b33e8439af944379acbdd9c3a5fe0bc44bd8a5
+- name: github.com/jpillora/backoff
+  version: 8eab2debe79d12b7bd3d10653910df25fa9552ba
 - name: github.com/mailru/easyjson
   version: 03f2033d19d5860aef995fe360ac7d395cd8ce65
   subpackages:
   - buffer
   - jlexer
   - jwriter
+- name: github.com/matttproud/golang_protobuf_extensions
+  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
+  subpackages:
+  - pbutil
 - name: github.com/mitchellh/mapstructure
   version: f15292f7a699fcc1a38a80977f80a046874ba8ac
+- name: github.com/prometheus/client_golang
+  version: 505eaef017263e299324067d40ca2c48f6a2cf50
+  subpackages:
+  - prometheus
+  - prometheus/internal
+- name: github.com/prometheus/client_model
+  version: 5c3871d89910bfb32f5fcab2aa4b9ec68e65a99f
+  subpackages:
+  - go
+- name: github.com/prometheus/common
+  version: c7de2306084e37d54b8be01f3541a8464345e9a5
+  subpackages:
+  - expfmt
+  - internal/bitbucket.org/ww/goautoneg
+  - model
+- name: github.com/prometheus/procfs
+  version: 05ee40e3a273f7245e8777337fc7b46e533a9a92
+  subpackages:
+  - internal/util
+  - nfs
+  - xfs
 - name: github.com/PuerkitoBio/purell
   version: 975f53781597ed779763b7b65566e74c4004d8de
 - name: github.com/PuerkitoBio/urlesc
   version: de5bf2ad457846296e2031421a34e2568e304e35
+- name: github.com/rcrowley/go-metrics
+  version: e2704e165165ec55d062f5919b4b29494e9fa790
 - name: github.com/satori/go.uuid
   version: f58768cc1a7a7e77a3bd49e98cdd21419399b6a3
 - name: github.com/stretchr/testify
