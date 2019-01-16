@@ -74,9 +74,9 @@ func (resp *Responder) WriteResponse(rw http.ResponseWriter, producer runtime.Pr
 	// If there is a reason (log message) or an error, do the logging.
 	if len(resp.reason) > 0 || resp.err != nil {
 		if resp.err != nil {
-			resp.l.Warn(resp.msg, log.Err(resp.err))
+			resp.l.Warn(resp.reason, log.Err(resp.err))
 		} else {
-			resp.l.Warn(resp.msg)
+			resp.l.Warn(resp.reason)
 		}
 	}
 
