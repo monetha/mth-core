@@ -107,18 +107,24 @@ func (resp *Responder) trySetErrorResponse() {
 	}
 }
 
+// write writes response:
+//   1) Set header fields.
+//   2) Write header with status.
+//   3) Write body.
 func (resp *Responder) write(rw http.ResponseWriter, producer runtime.Producer) {
+	// If response is nil, remove Content-Type header field only.
+	if resp.body == nil {
+		rw.Header().Del(runtime.HeaderContentType)
+	}
+
+	rw.WriteHeader(resp.status)
+
 	if resp.body != nil {
 		resp.fixZeroBody() // Try not to marshal to "null" if body is not nil
 		if err := producer.Produce(rw, resp.body); err != nil {
 			panic(err) // let the recovery middleware deal with this
 		}
-	} else {
-		// If response is nil, remove Content-Type header field only.
-		rw.Header().Del(runtime.HeaderContentType)
 	}
-
-	rw.WriteHeader(resp.status)
 }
 
 func (resp *Responder) fixZeroBody() {
