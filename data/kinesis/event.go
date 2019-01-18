@@ -22,6 +22,7 @@ type Event struct {
 	UserID        int64       `json:"uid,omitempty"`
 	UserUUID      string      `json:"uuid,omitempty"`
 	MerchantID    int64       `json:"mid,omitempty"`
+	UserName      string      `json:"scuid,omitempty"`
 	HTTPData      *HTTPData   `json:"http,omitempty"`
 	EventData     interface{} `json:"ed,omitempty"`
 }
