@@ -47,7 +47,7 @@ func (resp *Responder) WithContextData(data interface{}) *Responder {
 }
 
 func (resp *Responder) sendEvent() {
-	if resp.Event == nil {
+	if resp.eventContext == nil || resp.Event == nil {
 		return
 	}
 
