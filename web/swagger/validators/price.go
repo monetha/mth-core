@@ -1,7 +1,6 @@
 package validators
 
 import (
-	"math"
 	"strconv"
 	"strings"
 
@@ -9,6 +8,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 )
+
+const tenMillion float64 = 10000000
 
 // Price is a float64 with max. two digits after comma
 type Price float64
@@ -19,7 +20,7 @@ func (m Price) Validate(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validate.Maximum("", "body", float64(m), math.MaxInt32, false); err != nil {
+	if err := validate.Maximum("", "body", float64(m), tenMillion, false); err != nil {
 		return err
 	}
 
