@@ -17,6 +17,8 @@ type HealthCheckedDependency struct {
 	Checker  HealthChecker
 }
 
+// HealthCheckedDependencies are each of the dependencies which are needed to be checked in order to
+// be able to say that service is completely healthy.
 var HealthCheckedDependencies = []*HealthCheckedDependency{}
 
 // AddHealthCheckedDependency adds a health checked dependency.
