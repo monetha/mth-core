@@ -56,13 +56,15 @@ func checkHealth(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	if hasFailure {
+	switch {
+	case hasFailure:
 		if hasCriticalFailure {
 			w.WriteHeader(http.StatusServiceUnavailable)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			break
 		}
-	} else {
+		w.WriteHeader(http.StatusInternalServerError)
+
+	default:
 		w.WriteHeader(http.StatusOK)
 	}
 
