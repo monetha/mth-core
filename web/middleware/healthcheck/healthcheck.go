@@ -9,6 +9,8 @@ import (
 )
 
 var (
+	// Timeout is check timeout.
+	Timeout = time.Minute
 	// MaxFailureInARow is the number for when a dependency is considered broken/down.
 	MaxFailureInARow = 3
 	// dependencies are each of the dependencies which are needed to be checked in order to
@@ -122,6 +124,11 @@ func (dep *dependency) check() {
 	dep.Unlock()
 }
 
+func (dep *dependency) checkAndNotify(c chan struct{}) {
+	dep.check()
+	close(c)
+}
+
 func (dep *dependency) runAsync(ctx context.Context) {
 	ticker := time.NewTicker(dep.Interval)
 	for {
@@ -129,7 +136,18 @@ func (dep *dependency) runAsync(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			dep.check()
+		}
+
+		c := make(chan struct{})
+		go dep.checkAndNotify(c)
+
+		select {
+		case <-ctx.Done():
+			return
+		case <-c:
+			continue
+		case <-time.After(Timeout):
+			continue
 		}
 	}
 }
