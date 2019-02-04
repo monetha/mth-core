@@ -17,6 +17,8 @@ var (
 	Timeout = time.Minute
 	// MaxFailureInARow is the number for when a dependency is considered broken/down.
 	MaxFailureInARow = 3
+	// AsyncLoggingInterval is the interval for async logging of failing dependencies.
+	AsyncLoggingInterval = time.Minute
 	// dependencies are each of the dependencies which are needed to be checked in order to
 	// be able to say that service is completely healthy.
 	dependencies []*dependency
@@ -123,6 +125,8 @@ func Start(ctx context.Context) {
 	for _, dep := range dependencies {
 		go dep.runAsync(ctx)
 	}
+
+	go infinitelyLogFailingDeps()
 }
 
 func (dep *dependency) check() {
@@ -153,7 +157,7 @@ func (dep *dependency) runAsync(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-c:
-			logFailingDeps()
+			continue
 		case <-time.After(Timeout):
 			continue
 		}
@@ -174,5 +178,13 @@ func logFailingDeps() {
 
 	if len(failingDeps) > 0 {
 		log.With().Error(fmt.Sprintf("some of service dependencies are failing: %s", strings.Join(failingDeps, ", ")))
+	}
+}
+
+func infinitelyLogFailingDeps() {
+	ticker := time.NewTicker(AsyncLoggingInterval)
+	for {
+		<-ticker.C
+		logFailingDeps()
 	}
 }
