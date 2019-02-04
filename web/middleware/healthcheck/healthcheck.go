@@ -3,9 +3,13 @@ package healthcheck
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
+
+	"gitlab.com/monetha/mth-core/log"
 )
 
 var (
@@ -15,7 +19,9 @@ var (
 	MaxFailureInARow = 3
 	// dependencies are each of the dependencies which are needed to be checked in order to
 	// be able to say that service is completely healthy.
-	dependencies = []*dependency{}
+	dependencies []*dependency
+	// enabledDependencies are assigned to dependencies on start.
+	enabledDependencies = []*dependency{}
 )
 
 // HealthChecker checks health.
@@ -37,14 +43,12 @@ type dependency struct {
 
 // AddDependency adds a health checked dependency.
 func AddDependency(name string, critical bool, checker HealthChecker, interval time.Duration) {
-	dep := &dependency{
+	enabledDependencies = append(enabledDependencies, &dependency{
 		Name:     name,
 		Critical: critical,
 		Checker:  checker,
 		Interval: interval,
-	}
-
-	dependencies = append(dependencies, dep)
+	})
 }
 
 // Handler is simple handler for /health endpoint which reports with health status of dependencies.
@@ -108,9 +112,13 @@ func (dep *dependency) applyHealthCheckResult(healthyNow bool) {
 
 // Start starts async health check.
 func Start(ctx context.Context) {
+	dependencies = enabledDependencies
+
 	for _, dep := range dependencies {
 		dep.check()
 	}
+
+	logFailingDeps()
 
 	for _, dep := range dependencies {
 		go dep.runAsync(ctx)
@@ -145,9 +153,26 @@ func (dep *dependency) runAsync(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-c:
-			continue
+			logFailingDeps()
 		case <-time.After(Timeout):
 			continue
 		}
+	}
+}
+
+func logFailingDeps() {
+	failingDeps := make([]string, 0)
+
+	for _, dep := range dependencies {
+		dep.RLock()
+		consideredHealthy := dep.failuresAreNegligible()
+		if !consideredHealthy {
+			failingDeps = append(failingDeps, dep.Name)
+		}
+		dep.RUnlock()
+	}
+
+	if len(failingDeps) > 0 {
+		log.With().Error(fmt.Sprintf("some of service dependencies are failing: %s", strings.Join(failingDeps, ", ")))
 	}
 }
