@@ -31,10 +31,10 @@ type HealthChecker interface {
 
 // dependency is a microservice dependency, which is registered and health checked.
 type dependency struct {
-	Name     string
-	Critical bool
-	Checker  HealthChecker
-	Interval time.Duration
+	Name       string
+	IsCritical bool
+	Checker    HealthChecker
+	Interval   time.Duration
 
 	FailureInARow int
 
@@ -44,10 +44,10 @@ type dependency struct {
 // AddDependency adds a health checked dependency.
 func AddDependency(name string, critical bool, checker HealthChecker, interval time.Duration) {
 	enabledDependencies = append(enabledDependencies, &dependency{
-		Name:     name,
-		Critical: critical,
-		Checker:  checker,
-		Interval: interval,
+		Name:       name,
+		IsCritical: critical,
+		Checker:    checker,
+		Interval:   interval,
 	})
 }
 
@@ -71,7 +71,7 @@ func writeHealthStatus(w http.ResponseWriter, r *http.Request) {
 		consideredHealthy := dep.failuresAreNegligible()
 		if !consideredHealthy {
 			hasFailure = true
-			hasCriticalFailure = (hasCriticalFailure || dep.Critical)
+			hasCriticalFailure = (hasCriticalFailure || dep.IsCritical)
 		}
 		results[dep.Name] = consideredHealthy
 		dep.RUnlock()
