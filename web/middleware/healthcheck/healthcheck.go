@@ -3,9 +3,13 @@ package healthcheck
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
+
+	"gitlab.com/monetha/mth-core/log"
 )
 
 var (
@@ -13,9 +17,13 @@ var (
 	Timeout = time.Minute
 	// MaxFailureInARow is the number for when a dependency is considered broken/down.
 	MaxFailureInARow = 3
+	// AsyncLoggingInterval is the interval for async logging of failing dependencies.
+	AsyncLoggingInterval = time.Minute
 	// dependencies are each of the dependencies which are needed to be checked in order to
 	// be able to say that service is completely healthy.
-	dependencies = []*dependency{}
+	dependencies []*dependency
+	// enabledDependencies are assigned to dependencies on start.
+	enabledDependencies = []*dependency{}
 )
 
 // HealthChecker checks health.
@@ -25,10 +33,10 @@ type HealthChecker interface {
 
 // dependency is a microservice dependency, which is registered and health checked.
 type dependency struct {
-	Name     string
-	Critical bool
-	Checker  HealthChecker
-	Interval time.Duration
+	Name       string
+	IsCritical bool
+	Checker    HealthChecker
+	Interval   time.Duration
 
 	FailureInARow int
 
@@ -37,14 +45,12 @@ type dependency struct {
 
 // AddDependency adds a health checked dependency.
 func AddDependency(name string, critical bool, checker HealthChecker, interval time.Duration) {
-	dep := &dependency{
-		Name:     name,
-		Critical: critical,
-		Checker:  checker,
-		Interval: interval,
-	}
-
-	dependencies = append(dependencies, dep)
+	enabledDependencies = append(enabledDependencies, &dependency{
+		Name:       name,
+		IsCritical: critical,
+		Checker:    checker,
+		Interval:   interval,
+	})
 }
 
 // Handler is simple handler for /health endpoint which reports with health status of dependencies.
@@ -67,7 +73,7 @@ func writeHealthStatus(w http.ResponseWriter, r *http.Request) {
 		consideredHealthy := dep.failuresAreNegligible()
 		if !consideredHealthy {
 			hasFailure = true
-			hasCriticalFailure = (hasCriticalFailure || dep.Critical)
+			hasCriticalFailure = (hasCriticalFailure || dep.IsCritical)
 		}
 		results[dep.Name] = consideredHealthy
 		dep.RUnlock()
@@ -108,13 +114,19 @@ func (dep *dependency) applyHealthCheckResult(healthyNow bool) {
 
 // Start starts async health check.
 func Start(ctx context.Context) {
+	dependencies = enabledDependencies
+
 	for _, dep := range dependencies {
 		dep.check()
 	}
 
+	logFailingDeps()
+
 	for _, dep := range dependencies {
 		go dep.runAsync(ctx)
 	}
+
+	go infinitelyLogFailingDeps()
 }
 
 func (dep *dependency) check() {
@@ -149,5 +161,30 @@ func (dep *dependency) runAsync(ctx context.Context) {
 		case <-time.After(Timeout):
 			continue
 		}
+	}
+}
+
+func logFailingDeps() {
+	failingDeps := make([]string, 0)
+
+	for _, dep := range dependencies {
+		dep.RLock()
+		consideredHealthy := dep.failuresAreNegligible()
+		if !consideredHealthy {
+			failingDeps = append(failingDeps, dep.Name)
+		}
+		dep.RUnlock()
+	}
+
+	if len(failingDeps) > 0 {
+		log.With().Error(fmt.Sprintf("some of service dependencies are failing: %s", strings.Join(failingDeps, ", ")))
+	}
+}
+
+func infinitelyLogFailingDeps() {
+	ticker := time.NewTicker(AsyncLoggingInterval)
+	for {
+		<-ticker.C
+		logFailingDeps()
 	}
 }
