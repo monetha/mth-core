@@ -65,14 +65,13 @@ func Handler(h http.Handler) http.Handler {
 }
 
 func writeHealthStatus(w http.ResponseWriter, r *http.Request) {
-	var hasCriticalFailure, hasFailure bool
+	var hasCriticalFailure bool
 	results := make(map[string]bool)
 
 	for _, dep := range dependencies {
 		dep.RLock()
 		consideredHealthy := dep.failuresAreNegligible()
 		if !consideredHealthy {
-			hasFailure = true
 			hasCriticalFailure = (hasCriticalFailure || dep.IsCritical)
 		}
 		results[dep.Name] = consideredHealthy
@@ -82,12 +81,8 @@ func writeHealthStatus(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	switch {
-	case hasFailure:
-		if hasCriticalFailure {
-			w.WriteHeader(http.StatusServiceUnavailable)
-			break
-		}
-		w.WriteHeader(http.StatusInternalServerError)
+	case hasCriticalFailure:
+		w.WriteHeader(http.StatusServiceUnavailable)
 
 	default:
 		w.WriteHeader(http.StatusOK)
