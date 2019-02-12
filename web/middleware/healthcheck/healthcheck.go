@@ -2,7 +2,6 @@ package healthcheck
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -33,10 +32,9 @@ type HealthChecker interface {
 
 // dependency is a microservice dependency, which is registered and health checked.
 type dependency struct {
-	Name       string
-	IsCritical bool
-	Checker    HealthChecker
-	Interval   time.Duration
+	Name     string
+	Checker  HealthChecker
+	Interval time.Duration
 
 	FailureInARow int
 
@@ -44,52 +42,37 @@ type dependency struct {
 }
 
 // AddDependency adds a health checked dependency.
-func AddDependency(name string, critical bool, checker HealthChecker, interval time.Duration) {
+func AddDependency(name string, checker HealthChecker, interval time.Duration) {
 	enabledDependencies = append(enabledDependencies, &dependency{
-		Name:       name,
-		IsCritical: critical,
-		Checker:    checker,
-		Interval:   interval,
+		Name:     name,
+		Checker:  checker,
+		Interval: interval,
 	})
 }
 
-// Handler is simple handler for /health endpoint which reports with health status of dependencies.
+// Handler is simple handler for /health endpoint that returns 200 OK status.
 func Handler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/health" && (r.Method == "GET" || r.Method == "HEAD") {
-			writeHealthStatus(w, r)
+			w.WriteHeader(http.StatusOK)
 		} else {
 			h.ServeHTTP(w, r)
 		}
 	})
 }
 
-func writeHealthStatus(w http.ResponseWriter, r *http.Request) {
-	var hasCriticalFailure bool
+// GetStatuses returns statuses of service dependencies.
+func GetStatuses() map[string]bool {
 	results := make(map[string]bool)
 
 	for _, dep := range dependencies {
 		dep.RLock()
 		consideredHealthy := dep.failuresAreNegligible()
-		if !consideredHealthy {
-			hasCriticalFailure = (hasCriticalFailure || dep.IsCritical)
-		}
 		results[dep.Name] = consideredHealthy
 		dep.RUnlock()
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-
-	switch {
-	case hasCriticalFailure:
-		w.WriteHeader(http.StatusServiceUnavailable)
-
-	default:
-		w.WriteHeader(http.StatusOK)
-	}
-
-	b, _ := json.Marshal(results)
-	w.Write(b)
+	return results
 }
 
 func (dep *dependency) failuresAreNegligible() bool {
