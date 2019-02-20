@@ -21,43 +21,33 @@ var sensitiveHeaderKeys = map[string]struct{}{
 	http.CanonicalHeaderKey("Authorization"):      struct{}{},
 	http.CanonicalHeaderKey("mth-correlation-id"): struct{}{},
 	http.CanonicalHeaderKey("mth-passphrase"):     struct{}{},
-	http.CanonicalHeaderKey("mth-passphrase"):     struct{}{},
 	http.CanonicalHeaderKey("cookie"):             struct{}{},
 }
 
 var sensitivePayloadFields = map[string]struct{}{
-	"email":                             struct{}{},
-	"phone_number":                      struct{}{},
-	"first_name":                        struct{}{},
-	"last_name":                         struct{}{},
-	"address":                           struct{}{},
-	"fb_id":                             struct{}{},
-	"wallet_address":                    struct{}{},
-	"private_key":                       struct{}{},
-	"buyer_phone_number":                struct{}{},
-	"auth_token":                        struct{}{},
-	"contact_name":                      struct{}{},
-	"contact_email":                     struct{}{},
-	"contact_phone_number":              struct{}{},
-	"company_code":                      struct{}{},
-	"company_name":                      struct{}{},
-	"company_registration_address":      struct{}{},
-	"client_wallet_address":             struct{}{},
-	"city":                              struct{}{},
-	"zipcode":                           struct{}{},
-	"integration_key":                   struct{}{},
-	"payment_processor_address":         struct{}{},
-	"private_payment_processor_address": struct{}{},
-	"integration_secret":                struct{}{},
-	"mth_api_key":                       struct{}{},
-	"api_key":                           struct{}{},
-	"withdrawal_key":                    struct{}{},
-	"mth-signature":                     struct{}{},
-	"username":                          struct{}{},
-	"password":                          struct{}{},
-	"data_protection_key":               struct{}{},
-	"firstName":                         struct{}{},
-	"lastName":                          struct{}{},
+	"device_id":            struct{}{},
+	"first_name":           struct{}{},
+	"last_name":            struct{}{},
+	"firstName":            struct{}{},
+	"lastName":             struct{}{},
+	"address":              struct{}{},
+	"contact_name":         struct{}{},
+	"contact_email":        struct{}{},
+	"contact_phone_number": struct{}{},
+	"phone_number":         struct{}{},
+	"email":                struct{}{},
+	"fb_id":                struct{}{},
+	"buyer_phone_number":   struct{}{},
+	"mth_api_key":          struct{}{},
+	"api_key":              struct{}{},
+	"withdrawal_key":       struct{}{},
+	"mth-signature":        struct{}{},
+	"username":             struct{}{},
+	"password":             struct{}{},
+	"data_protection_key":  struct{}{},
+	"auth_token":           struct{}{},
+	"private_key":          struct{}{},
+	"integration_secret":   struct{}{},
 }
 
 // LoggingHandler is a middleware that will write the log to 'out' writer.
@@ -68,7 +58,7 @@ func LoggingHandler(h http.Handler) http.Handler {
 		path := r.URL.Path
 		raw := r.URL.RawQuery
 
-		cacheReader := newLimitCacheReader(r.Body, 4096)
+		cacheReader := newLimitCacheReader(r.Body, 8192)
 		r.Body = cacheReader
 
 		// call inner handler
@@ -112,7 +102,7 @@ func LoggingHandler(h http.Handler) http.Handler {
 			logMsg += " " + recoveryErr.Error()
 		}
 
-		if statusCode >= 500 {
+		if statusCode >= 400 {
 			var rb bytes.Buffer
 
 			replacedBytes := obfuscateSensitiveBodyFields(cacheReader.Bytes(), sensitivePayloadFields)
