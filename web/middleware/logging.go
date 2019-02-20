@@ -2,10 +2,10 @@ package middleware
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"net/http/httputil"
 	"runtime/debug"
 	"strings"
 	"time"
@@ -20,6 +20,34 @@ import (
 var sensitiveHeaderKeys = map[string]struct{}{
 	http.CanonicalHeaderKey("Authorization"):      struct{}{},
 	http.CanonicalHeaderKey("mth-correlation-id"): struct{}{},
+	http.CanonicalHeaderKey("mth-passphrase"):     struct{}{},
+	http.CanonicalHeaderKey("cookie"):             struct{}{},
+}
+
+var sensitivePayloadFields = map[string]struct{}{
+	"device_id":            struct{}{},
+	"first_name":           struct{}{},
+	"last_name":            struct{}{},
+	"firstName":            struct{}{},
+	"lastName":             struct{}{},
+	"address":              struct{}{},
+	"contact_name":         struct{}{},
+	"contact_email":        struct{}{},
+	"contact_phone_number": struct{}{},
+	"phone_number":         struct{}{},
+	"email":                struct{}{},
+	"fb_id":                struct{}{},
+	"buyer_phone_number":   struct{}{},
+	"mth_api_key":          struct{}{},
+	"api_key":              struct{}{},
+	"withdrawal_key":       struct{}{},
+	"mth-signature":        struct{}{},
+	"username":             struct{}{},
+	"password":             struct{}{},
+	"data_protection_key":  struct{}{},
+	"auth_token":           struct{}{},
+	"private_key":          struct{}{},
+	"integration_secret":   struct{}{},
 }
 
 // LoggingHandler is a middleware that will write the log to 'out' writer.
@@ -30,7 +58,7 @@ func LoggingHandler(h http.Handler) http.Handler {
 		path := r.URL.Path
 		raw := r.URL.RawQuery
 
-		cacheReader := newLimitCacheReader(r.Body, 4096)
+		cacheReader := newLimitCacheReader(r.Body, 8192)
 		r.Body = cacheReader
 
 		// call inner handler
@@ -74,17 +102,44 @@ func LoggingHandler(h http.Handler) http.Handler {
 			logMsg += " " + recoveryErr.Error()
 		}
 
-		if statusCode >= 500 {
+		if statusCode >= 400 {
 			var rb bytes.Buffer
-			reqBytes, _ := httputil.DumpRequest(r, false)
-			rb.Write(reqBytes)
-			rb.Write(cacheReader.Bytes())
+
+			replacedBytes := obfuscateSensitiveBodyFields(cacheReader.Bytes(), sensitivePayloadFields)
+			rb.Write(replacedBytes)
 
 			l.Error(logMsg, zap.String("payload", rb.String()))
 		} else {
 			l.Info(logMsg)
 		}
 	})
+}
+
+func obfuscateSensitiveBodyFields(bodyBytes []byte, sensitiveFields map[string]struct{}) []byte {
+	var replacedBytes []byte
+	m := make(map[string]interface{})
+	err := json.Unmarshal(bodyBytes, &m)
+
+	if err == nil {
+		m = obfuscateSensitiveFieldsInternal(m, sensitiveFields)
+		replacedBytes, _ = json.Marshal(m)
+	}
+
+	return replacedBytes
+}
+
+func obfuscateSensitiveFieldsInternal(m map[string]interface{}, sensitiveFields map[string]struct{}) map[string]interface{} {
+	for key := range m {
+		if _, ok := sensitiveFields[key]; ok {
+			m[key] = "*****"
+		} else {
+			if complexValue, ok := m[key].(map[string]interface{}); ok {
+				m[key] = obfuscateSensitiveFieldsInternal(complexValue, sensitiveFields)
+			}
+		}
+	}
+
+	return m
 }
 
 func adjustKeysWithPrefix(m map[string]interface{}, prefix string) map[string]interface{} {
@@ -99,9 +154,10 @@ func getHeaderFields(h http.Header, exclude map[string]struct{}, prefix string) 
 	m = make(map[string]interface{})
 	for key := range h {
 		if _, ok := exclude[http.CanonicalHeaderKey(key)]; ok {
-			continue
+			m[prefix+"_"+strings.ToLower(key)] = "*****"
+		} else {
+			m[prefix+"_"+strings.ToLower(key)] = h.Get(key)
 		}
-		m[prefix+"_"+strings.ToLower(key)] = h.Get(key)
 	}
 	return
 }
