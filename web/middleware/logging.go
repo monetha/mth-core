@@ -17,41 +17,14 @@ import (
 	"go.uber.org/zap"
 )
 
-var sensitiveHeaderKeys = map[string]struct{}{
-	http.CanonicalHeaderKey("Authorization"):      struct{}{},
-	http.CanonicalHeaderKey("mth-correlation-id"): struct{}{},
-	http.CanonicalHeaderKey("mth-passphrase"):     struct{}{},
-	http.CanonicalHeaderKey("cookie"):             struct{}{},
-}
-
-var sensitivePayloadFields = map[string]struct{}{
-	"device_id":            struct{}{},
-	"first_name":           struct{}{},
-	"last_name":            struct{}{},
-	"firstName":            struct{}{},
-	"lastName":             struct{}{},
-	"address":              struct{}{},
-	"contact_name":         struct{}{},
-	"contact_email":        struct{}{},
-	"contact_phone_number": struct{}{},
-	"phone_number":         struct{}{},
-	"email":                struct{}{},
-	"fb_id":                struct{}{},
-	"buyer_phone_number":   struct{}{},
-	"mth_api_key":          struct{}{},
-	"api_key":              struct{}{},
-	"withdrawal_key":       struct{}{},
-	"mth-signature":        struct{}{},
-	"username":             struct{}{},
-	"password":             struct{}{},
-	"data_protection_key":  struct{}{},
-	"auth_token":           struct{}{},
-	"private_key":          struct{}{},
-	"integration_secret":   struct{}{},
+// LoggingParameters contains additional data
+type LoggingParameters struct {
+	HeaderKeys    map[string]struct{}
+	PayloadFields map[string]struct{}
 }
 
 // LoggingHandler is a middleware that will write the log to 'out' writer.
-func LoggingHandler(h http.Handler) http.Handler {
+func LoggingHandler(h http.Handler, parameters LoggingParameters) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -89,11 +62,11 @@ func LoggingHandler(h http.Handler) http.Handler {
 		)
 		l = l.With(log.FieldsFrom(adjustKeysWithPrefix(authClaims, "c"))...)
 
-		reqHeaderFields := getHeaderFields(r.Header, sensitiveHeaderKeys, "ih")
+		reqHeaderFields := getHeaderFields(r.Header, parameters.HeaderKeys, "ih")
 		reqHeaderLoggingFields := log.FieldsFrom(reqHeaderFields)
 		l = l.With(reqHeaderLoggingFields...)
 
-		respHeaderFields := getHeaderFields(lrw.Header(), sensitiveHeaderKeys, "oh")
+		respHeaderFields := getHeaderFields(lrw.Header(), parameters.HeaderKeys, "oh")
 		respHeaderLoggingFields := log.FieldsFrom(respHeaderFields)
 		l = l.With(respHeaderLoggingFields...)
 
@@ -105,7 +78,7 @@ func LoggingHandler(h http.Handler) http.Handler {
 		if statusCode >= 400 {
 			var rb bytes.Buffer
 
-			replacedBytes := obfuscateSensitiveBodyFields(cacheReader.Bytes(), sensitivePayloadFields)
+			replacedBytes := obfuscateSensitiveBodyFields(cacheReader.Bytes(), parameters.PayloadFields)
 			rb.Write(replacedBytes)
 
 			l.Error(logMsg, zap.String("payload", rb.String()))
