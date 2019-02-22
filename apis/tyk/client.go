@@ -13,48 +13,38 @@ import (
 )
 
 const (
-	createKeyPath = "/tyk/keys/create"
-	keyPath       = "/tyk/keys/%s"
+	tykDashboardAPIBaseURL = "https://admin.cloud.tyk.io"
+	createSessionPath      = "/api/keys"
+	apiKeyPath             = "/api/apis/%s/keys/%s"
 
 	errorBytesLimit = 4000
 )
 
-// RestAPI defines methods to access Tyk REST API.
-type RestAPI interface {
-	CreateKey(ctx context.Context, session *Session) (string, error)
-	RetrieveKey(ctx context.Context, keyID string) (*Session, error)
-	UpdateKey(ctx context.Context, keyID string, session *Session) error
-	DeleteKey(ctx context.Context, keyID string) error
-}
-
-// RestAPIClient makes requests to Tyk REST API.
-type RestAPIClient struct {
+// Client makes requests to Tyk Dashboard API.
+type Client struct {
 	reqBuilder *rest.Client
 	httpClient *http.Client
 	authToken  string
 }
 
-var _ RestAPI = &RestAPIClient{}
-
-// NewRestAPIClient creates a new Tyk REST API client.
-func NewRestAPIClient(httpClient *http.Client, apiURL string, authToken string) *RestAPIClient {
-	return &RestAPIClient{
-		reqBuilder: rest.NewClient(apiURL),
+// NewClient creates a new Tyk Dashboard API client.
+func NewClient(httpClient *http.Client, authToken string) *Client {
+	return &Client{
+		reqBuilder: rest.NewClient(tykDashboardAPIBaseURL),
 		httpClient: httpClient,
 		authToken:  authToken,
 	}
 }
 
-// CreateKey creates a new Tyk key using session data and returns key ID.
-func (c *RestAPIClient) CreateKey(ctx context.Context, session *Session) (string, error) {
-	req, err := c.reqBuilder.NewEndpoint(ctx).Post(createKeyPath).WithHeader("X-Tyk-Authorization", c.authToken).
-		WithBody(session).Request()
+// CreateSession creates a new Tyk session and returns key ID.
+func (c *Client) CreateSession(ctx context.Context, session *Session) (string, error) {
+	req, err := c.reqBuilder.NewEndpoint(ctx).Post(createSessionPath).WithAuth(&c.authToken).WithBody(session).Request()
 	if err != nil {
 		return "", errorf("failed to build request: %v", err)
 	}
 
 	var respObj struct {
-		KeyID *string `json:"key"`
+		KeyID *string `json:"key_id"`
 	}
 	if err = c.do(req, &respObj); err != nil {
 		return "", err
@@ -66,27 +56,28 @@ func (c *RestAPIClient) CreateKey(ctx context.Context, session *Session) (string
 	return *respObj.KeyID, nil
 }
 
-// RetrieveKey retrieves a key's session data.
-func (c *RestAPIClient) RetrieveKey(ctx context.Context, keyID string) (*Session, error) {
-	reqPath := fmt.Sprintf(keyPath, keyID)
-	req, err := c.reqBuilder.NewEndpoint(ctx).Get(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).Request()
+// RetrieveSession retrieves a session.
+func (c *Client) RetrieveSession(ctx context.Context, apiID, keyID string) (*Session, error) {
+	reqPath := fmt.Sprintf(apiKeyPath, apiID, keyID)
+	req, err := c.reqBuilder.NewEndpoint(ctx).Get(reqPath).WithAuth(&c.authToken).Request()
 	if err != nil {
 		return nil, errorf("failed to build request: %v", err)
 	}
 
-	var session Session
-	if err = c.do(req, &session); err != nil {
+	var respObj struct {
+		Data Session `json:"data"`
+	}
+	if err = c.do(req, &respObj); err != nil {
 		return nil, err
 	}
 
-	return &session, nil
+	return &respObj.Data, nil
 }
 
-// UpdateKey updates a key with PUT method, using given session data.
-func (c *RestAPIClient) UpdateKey(ctx context.Context, keyID string, session *Session) error {
-	reqPath := fmt.Sprintf(keyPath, keyID)
-	req, err := c.reqBuilder.NewEndpoint(ctx).Put(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).
-		WithBody(session).Request()
+// UpdateSession updates a session with PUT method.
+func (c *Client) UpdateSession(ctx context.Context, apiID, keyID string, session *Session) error {
+	reqPath := fmt.Sprintf(apiKeyPath, apiID, keyID)
+	req, err := c.reqBuilder.NewEndpoint(ctx).Put(reqPath).WithAuth(&c.authToken).WithBody(session).Request()
 	if err != nil {
 		return errorf("failed to build request: %v", err)
 	}
@@ -94,10 +85,10 @@ func (c *RestAPIClient) UpdateKey(ctx context.Context, keyID string, session *Se
 	return c.do(req, nil)
 }
 
-// DeleteKey deletes a key using ID.
-func (c *RestAPIClient) DeleteKey(ctx context.Context, keyID string) error {
-	reqPath := fmt.Sprintf(keyPath, keyID)
-	req, err := c.reqBuilder.NewEndpoint(ctx).Delete(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).Request()
+// DeleteSession deletes a session using a relevant API ID.
+func (c *Client) DeleteSession(ctx context.Context, apiID, keyID string) error {
+	reqPath := fmt.Sprintf(apiKeyPath, apiID, keyID)
+	req, err := c.reqBuilder.NewEndpoint(ctx).Delete(reqPath).WithAuth(&c.authToken).Request()
 	if err != nil {
 		return errorf("failed to build request: %v", err)
 	}
@@ -105,7 +96,7 @@ func (c *RestAPIClient) DeleteKey(ctx context.Context, keyID string) error {
 	return c.do(req, nil)
 }
 
-func (c *RestAPIClient) do(req *http.Request, respObjPtr interface{}) error {
+func (c *Client) do(req *http.Request, respObjPtr interface{}) error {
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return errorf("failed to make request: %v", err)
