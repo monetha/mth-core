@@ -21,6 +21,17 @@ type APIAccessRules struct {
 	AllowedURLs []*AllowedURL `json:"allowed_urls,omitempty"`
 }
 
+// NewDefaultAPIAccessRules creates a new API access rules object.
+func NewDefaultAPIAccessRules(apiID ...string) *APIAccessRules {
+	ar := &APIAccessRules{
+		Versions: []string{"Default"},
+	}
+	if apiID != nil {
+		ar.APIID = apiID[0]
+	}
+	return ar
+}
+
 // JWTData contains JWT secret.
 type JWTData struct {
 	Secret string `json:"secret"`
@@ -69,17 +80,22 @@ type Session struct {
 	// Tags are embedded into analytics data when the request completes. If a policy has tags,
 	// those tags will supersede the ones carried by the token (they will be overwritten).
 	Tags []string `json:"tags,omitempty"`
+
+	// Alias offers a way to identify a token in a more human-readable manner, especially in analytics.
+	Alias string `json:"alias,omitempty"`
 }
 
-// NewSession creates a new Tyk session object with our default settings.
-func NewSession() *Session {
+// NewDefaultSession creates a new Tyk session object with our default settings.
+func NewDefaultSession(apiID string) *Session {
 	s := &Session{
 		Per:            60,   // Rate frame == every 60 seconds
 		Rate:           1000, // How many requests per frame == 1000
 		Expires:        -1,   // Never expires
 		QuotaMax:       -1,   // Infinite
 		QuotaRemaining: -1,   // Infinite
-		AccessRights:   map[string]*APIAccessRules{},
+		AccessRights: map[string]*APIAccessRules{
+			apiID: NewDefaultAPIAccessRules(apiID),
+		},
 	}
 	s.Allowance = s.Rate // Allowance must always be equal to rate
 
@@ -87,29 +103,7 @@ func NewSession() *Session {
 }
 
 // SetJWTSecret sets JWT secret.
-func (session *Session) SetJWTSecret(secret string) *Session {
-	session.JWTData.Secret = secret
-	return session
-}
-
-// AddAccess adds access to API with versions.
-func (session *Session) AddAccess(apiID string, versions ...string) *Session {
-	ar := &APIAccessRules{
-		APIID: apiID,
-	}
-	if versions != nil {
-		ar.Versions = versions
-	}
-	if session.AccessRights == nil {
-		session.AccessRights = map[string]*APIAccessRules{}
-	}
-	session.AccessRights[apiID] = ar
-
-	return session
-}
-
-// WithPolicies adds policies to session.
-func (session *Session) WithPolicies(policyIDs ...string) *Session {
-	session.ApplyPolicies = append(session.ApplyPolicies, policyIDs...)
-	return session
+func (j *Session) SetJWTSecret(secret string) *Session {
+	j.JWTData.Secret = secret
+	return j
 }
