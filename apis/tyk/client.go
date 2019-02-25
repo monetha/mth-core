@@ -2,11 +2,13 @@ package tyk
 
 import (
 	"context"
+	"crypto/md5"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 
 	"gitlab.com/monetha/mth-core/http/rest"
@@ -138,4 +140,35 @@ func errorify(r io.Reader) error {
 
 func errorf(msg string, args ...interface{}) error {
 	return fmt.Errorf("tyk: "+msg, args...)
+}
+
+// RestAPIStub is a stub which implements RestAPI.
+type RestAPIStub struct{}
+
+// NewRestAPIStub creates a new stub.
+func NewRestAPIStub() *RestAPIStub {
+	return &RestAPIStub{}
+}
+
+// CreateKey creates a new Tyk key using session data and returns key ID.
+func (c *RestAPIStub) CreateKey(ctx context.Context, session *Session) (string, error) {
+	b := make([]byte, 16)
+	rand.Read(b)
+	h := md5.Sum(b)
+	return string(h[:]), nil
+}
+
+// RetrieveKey retrieves a key's session data.
+func (c *RestAPIStub) RetrieveKey(ctx context.Context, keyID string) (*Session, error) {
+	return NewSession(), nil
+}
+
+// UpdateKey updates a key with PUT method, using given session data.
+func (c *RestAPIStub) UpdateKey(ctx context.Context, keyID string, session *Session) error {
+	return nil
+}
+
+// DeleteKey deletes a key using ID.
+func (c *RestAPIStub) DeleteKey(ctx context.Context, keyID string) error {
+	return nil
 }
