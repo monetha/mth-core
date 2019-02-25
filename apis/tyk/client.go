@@ -145,6 +145,8 @@ func errorf(msg string, args ...interface{}) error {
 // RestAPIStub is a stub which implements RestAPI.
 type RestAPIStub struct{}
 
+var _ RestAPI = &RestAPIStub{}
+
 // NewRestAPIStub creates a new stub.
 func NewRestAPIStub() *RestAPIStub {
 	return &RestAPIStub{}
