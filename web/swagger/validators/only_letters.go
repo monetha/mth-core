@@ -17,8 +17,9 @@ var (
 	// unacceptedChars is unaccepted chars in name: whitespace, numbers and symbols.
 	unacceptedChars = `\s<>{}\"\/|;:.,~!?@#$%^=&*\]\\\\()\\[¿§«»ω⊙¤°℃℉€¥£¢¡®©0-9_+\*`
 	// acceptedName is constructed using `^[^\s]+(\s+[^\s]+)*$` pattern.
-	acceptedName             = fmt.Sprintf(`^[^%s]+(?:\s+[^%s]+)*$`, unacceptedChars, unacceptedChars)
-	errInvalidSpacingOrChars = errors.New("string has invalid spacing or contains unaccepted chars")
+	acceptedName = fmt.Sprintf(`^[^%s]+(?:\s+[^%s]+)*$`, unacceptedChars, unacceptedChars)
+	// ErrInvalidSpacingOrChars is used when string contains invalid spacing or contains unaccepted chars
+	ErrInvalidSpacingOrChars = errors.New("string has invalid spacing or contains unaccepted chars")
 	errContainsEmoji         = errors.New("string contains emoji")
 )
 
@@ -43,7 +44,7 @@ func (ol OnlyLetters) Validate(formats strfmt.Registry) error {
 		return err
 	}
 	if !r.MatchString(m) {
-		return oapierrors.NewParseError("", "body", m, errInvalidSpacingOrChars)
+		return oapierrors.NewParseError("", "body", m, ErrInvalidSpacingOrChars)
 	}
 	// Ensure that expression doesn't contain emojis.
 	r, err = regexp.Compile(allEmojiRanges)
