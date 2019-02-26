@@ -22,19 +22,19 @@ func TestOnlyLettersValidator(t *testing.T) {
 			name:              "emoji",
 			s:                 "John♥",
 			expectErr:         true,
-			expectedErrString: errContainsEmoji.Error(),
+			expectedErrString: ErrContainsEmoji.Error(),
 		},
 		{
 			name:              "symbols",
 			s:                 "John$/=?",
 			expectErr:         true,
-			expectedErrString: errInvalidSpacingOrChars.Error(),
+			expectedErrString: ErrInvalidSpacingOrChars.Error(),
 		},
 		{
 			name:              "trailing whitespace",
 			s:                 "John ",
 			expectErr:         true,
-			expectedErrString: errInvalidSpacingOrChars.Error(),
+			expectedErrString: ErrInvalidSpacingOrChars.Error(),
 		},
 	}
 
