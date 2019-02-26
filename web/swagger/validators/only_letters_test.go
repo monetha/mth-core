@@ -22,7 +22,7 @@ func TestOnlyLettersValidator(t *testing.T) {
 			name:              "emoji",
 			s:                 "John♥",
 			expectErr:         true,
-			expectedErrString: errContainsEmoji.Error(),
+			expectedErrString: ErrContainsEmoji.Error(),
 		},
 		{
 			name:              "symbols",

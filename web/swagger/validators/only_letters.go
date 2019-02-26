@@ -20,7 +20,8 @@ var (
 	acceptedName = fmt.Sprintf(`^[^%s]+(?:\s+[^%s]+)*$`, unacceptedChars, unacceptedChars)
 	// ErrInvalidSpacingOrChars is used when string contains invalid spacing or contains unaccepted chars
 	ErrInvalidSpacingOrChars = errors.New("string has invalid spacing or contains unaccepted chars")
-	errContainsEmoji         = errors.New("string contains emoji")
+	// ErrContainsEmoji is used when string contains emoji
+	ErrContainsEmoji = errors.New("string contains emoji")
 )
 
 // OnlyLetters is only letters and nothing else.
@@ -52,7 +53,7 @@ func (ol OnlyLetters) Validate(formats strfmt.Registry) error {
 		return err
 	}
 	if r.MatchString(m) {
-		return oapierrors.NewParseError("", "body", m, errContainsEmoji)
+		return oapierrors.NewParseError("", "body", m, ErrContainsEmoji)
 	}
 	return nil
 }
