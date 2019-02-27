@@ -15,18 +15,17 @@ import (
 )
 
 const (
-	createKeyPath = "/tyk/keys/create"
-	keyPath       = "/tyk/keys/%s"
+	keyPath = "/tyk/keys/%s"
 
 	errorBytesLimit = 4000
 )
 
 // RestAPI defines methods to access Tyk REST API.
 type RestAPI interface {
-	CreateKey(ctx context.Context, session *Session) (string, error)
-	RetrieveKey(ctx context.Context, keyID string) (*Session, error)
-	UpdateKey(ctx context.Context, keyID string, session *Session) error
-	DeleteKey(ctx context.Context, keyID string) error
+	CreateKey(ctx context.Context, session *Session, key string) (string, error)
+	RetrieveKey(ctx context.Context, key string) (*Session, error)
+	UpdateKey(ctx context.Context, key string, session *Session) error
+	DeleteKey(ctx context.Context, key string) error
 }
 
 // RestAPIClient makes requests to Tyk REST API.
@@ -48,8 +47,9 @@ func NewRestAPIClient(httpClient *http.Client, apiURL string, authToken string) 
 }
 
 // CreateKey creates a new Tyk key using session data and returns key ID.
-func (c *RestAPIClient) CreateKey(ctx context.Context, session *Session) (string, error) {
-	req, err := c.reqBuilder.NewEndpoint(ctx).Post(createKeyPath).WithHeader("X-Tyk-Authorization", c.authToken).
+func (c *RestAPIClient) CreateKey(ctx context.Context, session *Session, key string) (string, error) {
+	reqPath := fmt.Sprintf(keyPath, key)
+	req, err := c.reqBuilder.NewEndpoint(ctx).Post(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).
 		WithBody(session).Request()
 	if err != nil {
 		return "", errorf("failed to build request: %v", err)
@@ -69,8 +69,8 @@ func (c *RestAPIClient) CreateKey(ctx context.Context, session *Session) (string
 }
 
 // RetrieveKey retrieves a key's session data.
-func (c *RestAPIClient) RetrieveKey(ctx context.Context, keyID string) (*Session, error) {
-	reqPath := fmt.Sprintf(keyPath, keyID)
+func (c *RestAPIClient) RetrieveKey(ctx context.Context, key string) (*Session, error) {
+	reqPath := fmt.Sprintf(keyPath, key)
 	req, err := c.reqBuilder.NewEndpoint(ctx).Get(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).Request()
 	if err != nil {
 		return nil, errorf("failed to build request: %v", err)
@@ -85,8 +85,8 @@ func (c *RestAPIClient) RetrieveKey(ctx context.Context, keyID string) (*Session
 }
 
 // UpdateKey updates a key with PUT method, using given session data.
-func (c *RestAPIClient) UpdateKey(ctx context.Context, keyID string, session *Session) error {
-	reqPath := fmt.Sprintf(keyPath, keyID)
+func (c *RestAPIClient) UpdateKey(ctx context.Context, key string, session *Session) error {
+	reqPath := fmt.Sprintf(keyPath, key)
 	req, err := c.reqBuilder.NewEndpoint(ctx).Put(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).
 		WithBody(session).Request()
 	if err != nil {
@@ -97,8 +97,8 @@ func (c *RestAPIClient) UpdateKey(ctx context.Context, keyID string, session *Se
 }
 
 // DeleteKey deletes a key using ID.
-func (c *RestAPIClient) DeleteKey(ctx context.Context, keyID string) error {
-	reqPath := fmt.Sprintf(keyPath, keyID)
+func (c *RestAPIClient) DeleteKey(ctx context.Context, key string) error {
+	reqPath := fmt.Sprintf(keyPath, key)
 	req, err := c.reqBuilder.NewEndpoint(ctx).Delete(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).Request()
 	if err != nil {
 		return errorf("failed to build request: %v", err)
@@ -153,7 +153,7 @@ func NewRestAPIStub() *RestAPIStub {
 }
 
 // CreateKey creates a new Tyk key using session data and returns key ID.
-func (c *RestAPIStub) CreateKey(ctx context.Context, session *Session) (string, error) {
+func (c *RestAPIStub) CreateKey(ctx context.Context, session *Session, key string) (string, error) {
 	b := make([]byte, 16)
 	rand.Read(b)
 	h := md5.Sum(b)
