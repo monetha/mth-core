@@ -1,7 +1,6 @@
 package validators
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
@@ -18,10 +17,6 @@ var (
 	unacceptedChars = `\s<>{}\"\/|;:.,~!?@#$%^=&*\]\\\\()\\[¿§«»ω⊙¤°℃℉€¥£¢¡®©0-9_+\*`
 	// acceptedName is constructed using `^[^\s]+(\s+[^\s]+)*$` pattern.
 	acceptedName = fmt.Sprintf(`^[^%s]+(?:\s+[^%s]+)*$`, unacceptedChars, unacceptedChars)
-	// ErrInvalidSpacingOrChars is used when string contains invalid spacing or contains unaccepted chars
-	ErrInvalidSpacingOrChars = errors.New("string has invalid spacing or contains unaccepted chars")
-	// ErrContainsEmoji is used when string contains emoji
-	ErrContainsEmoji = errors.New("string contains emoji")
 )
 
 // OnlyLetters is only letters and nothing else.
@@ -45,7 +40,7 @@ func (ol OnlyLetters) Validate(formats strfmt.Registry) error {
 		return err
 	}
 	if !r.MatchString(m) {
-		return oapierrors.NewParseError("", "body", m, ErrInvalidSpacingOrChars)
+		return oapierrors.FailedPattern("", "body", "only letters")
 	}
 	// Ensure that expression doesn't contain emojis.
 	r, err = regexp.Compile(allEmojiRanges)
@@ -53,7 +48,7 @@ func (ol OnlyLetters) Validate(formats strfmt.Registry) error {
 		return err
 	}
 	if r.MatchString(m) {
-		return oapierrors.NewParseError("", "body", m, ErrContainsEmoji)
+		return oapierrors.FailedPattern("", "body", "only letters")
 	}
 	return nil
 }
