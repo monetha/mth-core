@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
@@ -27,13 +26,14 @@ var (
 
 // HealthChecker checks health.
 type HealthChecker interface {
-	CheckHealth() bool
+	CheckHealth() error
 }
 
 // dependency is a microservice dependency, which is registered and health checked.
 type dependency struct {
 	Name     string
 	Checker  HealthChecker
+	LastErr  error
 	Interval time.Duration
 
 	FailureInARow int
@@ -108,9 +108,10 @@ func Start(ctx context.Context) {
 }
 
 func (dep *dependency) check() {
-	healthyNow := dep.Checker.CheckHealth()
+	err := dep.Checker.CheckHealth()
 	dep.Lock()
-	dep.applyHealthCheckResult(healthyNow)
+	dep.LastErr = err
+	dep.applyHealthCheckResult(err == nil)
 	dep.Unlock()
 }
 
@@ -143,19 +144,13 @@ func (dep *dependency) runAsync(ctx context.Context) {
 }
 
 func logFailingDeps() {
-	failingDeps := make([]string, 0)
-
 	for _, dep := range dependencies {
 		dep.RLock()
 		consideredHealthy := dep.failuresAreNegligible()
 		if !consideredHealthy {
-			failingDeps = append(failingDeps, dep.Name)
+			log.With().Error(fmt.Sprintf("healthcheck: dependency '%s' is failing: %v", dep.Name, dep.LastErr))
 		}
 		dep.RUnlock()
-	}
-
-	if len(failingDeps) > 0 {
-		log.With().Error(fmt.Sprintf("some of service dependencies are failing: %s", strings.Join(failingDeps, ", ")))
 	}
 }
 
