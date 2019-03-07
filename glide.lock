@@ -1,10 +1,10 @@
-hash: 470bc89a28c1381ea2a14d41eef1ea5df83f1895318444ef84b0cf852ec2c711
-updated: 2019-01-14T14:50:35.673767452+03:00
+hash: abff4babe23a9655283f506faf71de1a0dc2531ba8a81525e240d748e33da36c
+updated: 2019-03-07T18:06:38.528593615+03:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 521b25f4b05fd26bec69d9dedeb8f9c9a83939a8
 - name: github.com/aws/aws-sdk-go
-  version: aabf189db35ba7eb5a35afe6d681fc0f70954fca
+  version: 6ff66bb2b8ac90ac25b1dbbf9806f09651630789
   subpackages:
   - aws
   - aws/awserr
@@ -74,6 +74,10 @@ imports:
   version: c2b33e8439af944379acbdd9c3a5fe0bc44bd8a5
 - name: github.com/jpillora/backoff
   version: 8eab2debe79d12b7bd3d10653910df25fa9552ba
+- name: github.com/lib/pq
+  version: 90697d60dd844d5ef6ff15135d0203f65d2f53b8
+  subpackages:
+  - oid
 - name: github.com/mailru/easyjson
   version: 03f2033d19d5860aef995fe360ac7d395cd8ce65
   subpackages:
