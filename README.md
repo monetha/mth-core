@@ -15,5 +15,4 @@ a good idea to push changes to a remote branch and reference commits from consum
 3) Find `mth-core` in `glide.lock` and replace revision number with `fd8332512979ef10fd23c6074e5992fbe3d0341b`.
 4) Do `glide install`.
 
-When you MR is merged, please push a new version tag to `mth-core`. Afterwards, you can do either `glide update`
-or replace `glide.lock` revision hash with `mth-core` `master` HEAD.
+When you MR is merged, please push a new version tag to `mth-core`. Afterwards, please update consumer service's `glide.yaml` with latest version tag and do `glide update`.
