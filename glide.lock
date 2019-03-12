@@ -1,10 +1,10 @@
-hash: abff4babe23a9655283f506faf71de1a0dc2531ba8a81525e240d748e33da36c
-updated: 2019-03-07T18:06:38.528593615+03:00
+hash: 692dd63a477847870bba339106e8d1379251a9be241050dbecf2125ab3d7bfa1
+updated: 2019-03-12T13:58:18.60849754+03:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 521b25f4b05fd26bec69d9dedeb8f9c9a83939a8
 - name: github.com/aws/aws-sdk-go
-  version: 6ff66bb2b8ac90ac25b1dbbf9806f09651630789
+  version: f2bb620afb315242706942e6ca4c7d26ee5ed627
   subpackages:
   - aws
   - aws/awserr
@@ -44,6 +44,11 @@ imports:
   - quantile
 - name: github.com/dgrijalva/jwt-go
   version: 06ea1031745cb8b3dab3f6a236daf2b0aa468b7e
+- name: github.com/globalsign/mgo
+  version: eeefdecb41b842af6dc652aaea4026e8403e62df
+  subpackages:
+  - bson
+  - internal/json
 - name: github.com/go-openapi/analysis
   version: 7c1bef8f6d9fa6148ce0d8a0ebf5339a084a6639
   subpackages:
@@ -61,7 +66,7 @@ imports:
 - name: github.com/go-openapi/spec
   version: 384415f06ee238aae1df5caad877de6ceac3a5c4
 - name: github.com/go-openapi/strfmt
-  version: eed2e948ab461573432a715f4dd5f0ef51cbadd6
+  version: 35fe47352985e13cc75f13120d70d26fd764ed51
 - name: github.com/go-openapi/swag
   version: becd2f08beafcca035645a8a101e0e3e18140458
 - name: github.com/go-openapi/validate
@@ -89,7 +94,7 @@ imports:
   subpackages:
   - pbutil
 - name: github.com/mitchellh/mapstructure
-  version: f15292f7a699fcc1a38a80977f80a046874ba8ac
+  version: fa473d140ef3c6adf42d6b391fe76707f1f243c8
 - name: github.com/prometheus/client_golang
   version: 505eaef017263e299324067d40ca2c48f6a2cf50
   subpackages:
@@ -116,7 +121,7 @@ imports:
 - name: github.com/PuerkitoBio/urlesc
   version: de5bf2ad457846296e2031421a34e2568e304e35
 - name: github.com/rcrowley/go-metrics
-  version: e2704e165165ec55d062f5919b4b29494e9fa790
+  version: 3113b8401b8a98917cde58f8bbd42a1b1c03b1fd
 - name: github.com/satori/go.uuid
   version: f58768cc1a7a7e77a3bd49e98cdd21419399b6a3
 - name: github.com/stretchr/testify
@@ -149,11 +154,6 @@ imports:
   - unicode/bidi
   - unicode/norm
   - width
-- name: gopkg.in/mgo.v2
-  version: 9856a29383ce1c59f308dd1cf0363a79b5bef6b5
-  subpackages:
-  - bson
-  - internal/json
 - name: gopkg.in/yaml.v2
   version: 5420a8b6744d3b0345ab293f6fcba19c978f1183
 testImports:
