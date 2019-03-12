@@ -22,3 +22,5 @@ import:
   version: 3113b8401b8a98917cde58f8bbd42a1b1c03b1fd
 - package: github.com/lib/pq
   version: 90697d60dd844d5ef6ff15135d0203f65d2f53b8
+- package: github.com/rs/cors
+  version: v1.6.0

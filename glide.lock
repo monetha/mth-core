@@ -1,5 +1,5 @@
-hash: 692dd63a477847870bba339106e8d1379251a9be241050dbecf2125ab3d7bfa1
-updated: 2019-03-12T13:58:18.60849754+03:00
+hash: c205faa2d20302174b4cc0ad291431c706dfcb05aa88a16b2e680006ba43a17e
+updated: 2019-03-12T19:01:07.2999712+02:00
 imports:
 - name: github.com/asaskevich/govalidator
   version: 521b25f4b05fd26bec69d9dedeb8f9c9a83939a8
@@ -122,6 +122,8 @@ imports:
   version: de5bf2ad457846296e2031421a34e2568e304e35
 - name: github.com/rcrowley/go-metrics
   version: 3113b8401b8a98917cde58f8bbd42a1b1c03b1fd
+- name: github.com/rs/cors
+  version: 9a47f48565a795472d43519dd49aac781f3034fb
 - name: github.com/satori/go.uuid
   version: f58768cc1a7a7e77a3bd49e98cdd21419399b6a3
 - name: github.com/stretchr/testify
@@ -142,7 +144,7 @@ imports:
   - internal/exit
   - zapcore
 - name: golang.org/x/net
-  version: aaf60122140d3fcf75376d319f0554393160eb50
+  version: 10aee181995363b41f712a55844a0dd52ea04646
   subpackages:
   - context
   - idna
