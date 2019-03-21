@@ -30,8 +30,14 @@ type StreamPutter struct {
 
 // NewStreamPutter creates a new instance of StreamPutter using provided `cfg` (configuration).
 func NewStreamPutter(cfg PutterConfig) (*StreamPutter, error) {
-	cred := credentials.NewStaticCredentials(cfg.AwsAccessKey, cfg.AwsSecretKey, "")
-	s, err := session.NewSession(&aws.Config{Credentials: cred, Region: aws.String(cfg.AwsRegion)})
+	config := &aws.Config{Region: aws.String(cfg.AwsRegion)}
+
+	if cfg.AwsAccessKey != "" {
+		c := credentials.NewStaticCredentials(cfg.AwsAccessKey, cfg.AwsSecretKey, "")
+		config.Credentials = c
+	}
+
+	s, err := session.NewSession(config)
 	if err != nil {
 		return nil, err
 	}
