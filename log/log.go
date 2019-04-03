@@ -64,6 +64,12 @@ func With(fields ...zapcore.Field) *Logger {
 	return (*Logger)(zap.L().With(fields...))
 }
 
+// WithOptions creates a child logger with options.
+func (l *Logger) WithOptions(opts ...zap.Option) *Logger {
+	lo := (*zap.Logger)(l)
+	return (*Logger)(lo.WithOptions(opts...))
+}
+
 // Err constructs a "error" field with the error text.
 func Err(err error) zapcore.Field {
 	return zap.Error(err)

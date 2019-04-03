@@ -60,6 +60,7 @@ func LoggingHandler(h http.Handler, parameters LoggingParameters) http.Handler {
 			zap.Duration("latency", latency),
 			zap.String("client_ip", clientIP),
 		)
+		l = l.WithOptions(zap.AddStacktrace(zap.DPanicLevel)) // Do not include stacktrace for Error level and lower
 		l = l.With(log.FieldsFrom(adjustKeysWithPrefix(authClaims, "c"))...)
 
 		reqHeaderFields := getHeaderFields(r.Header, parameters.HeaderKeys, "ih")
@@ -75,13 +76,18 @@ func LoggingHandler(h http.Handler, parameters LoggingParameters) http.Handler {
 			logMsg += " " + recoveryErr.Error()
 		}
 
+		// Include request payload when we generate 400+ responses.
 		if statusCode >= 400 {
 			var rb bytes.Buffer
 
 			replacedBytes := obfuscateSensitiveBodyFields(cacheReader.Bytes(), parameters.PayloadFields)
 			rb.Write(replacedBytes)
 
-			l.Error(logMsg, zap.String("payload", rb.String()))
+			l = l.With(zap.String("payload", rb.String()))
+		}
+
+		if statusCode >= 500 {
+			l.Error(logMsg)
 		} else {
 			l.Info(logMsg)
 		}
