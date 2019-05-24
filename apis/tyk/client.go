@@ -20,6 +20,18 @@ const (
 	errorBytesLimit = 4000
 )
 
+//ErrBadRequest is returned when request was incorrect
+var ErrBadRequest = errors.New("bad request")
+
+//ErrUnauthorized is returned when authentication information is missing
+var ErrUnauthorized = errors.New("authorization required")
+
+//ErrForbidden is returned when access is denied
+var ErrForbidden = errors.New("forbidden")
+
+//ErrNotFound is returned when a key is not found.
+var ErrNotFound = errors.New("key not found")
+
 // RestAPI defines methods to access Tyk REST API.
 type RestAPI interface {
 	CreateKey(ctx context.Context, session *Session, key string) (string, error)
@@ -114,8 +126,21 @@ func (c *RestAPIClient) do(req *http.Request, respObjPtr interface{}) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode >= 400 {
-		return errorify(resp.Body)
+	code := resp.StatusCode
+
+	if code >= 400 {
+		switch code {
+		case 400:
+			return ErrBadRequest
+		case 401:
+			return ErrUnauthorized
+		case 403:
+			return ErrForbidden
+		case 404:
+			return ErrNotFound
+		default:
+			return errorify(resp.Body)
+		}
 	}
 
 	if respObjPtr != nil {
