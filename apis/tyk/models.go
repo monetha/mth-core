@@ -69,6 +69,12 @@ type Session struct {
 	// Tags are embedded into analytics data when the request completes. If a policy has tags,
 	// those tags will supersede the ones carried by the token (they will be overwritten).
 	Tags []string `json:"tags,omitempty"`
+
+	// As of v2.1, an Alias offers a way to identify a token in a more human-readable manner,
+	// add an Alias to a token in order to have the data transferred into Analytics later on
+	// so you can track both hashed and un-hashed tokens to a meaningful identifier
+	// that doesn’t expose the security of the underlying token.
+	Alias string `json:"tags,omitempty"`
 }
 
 // NewSession creates a new Tyk session object with our default settings.
