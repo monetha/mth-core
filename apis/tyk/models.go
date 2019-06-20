@@ -70,11 +70,11 @@ type Session struct {
 	// those tags will supersede the ones carried by the token (they will be overwritten).
 	Tags []string `json:"tags,omitempty"`
 
-	// As of v2.1, an Alias offers a way to identify a token in a more human-readable manner,
-	// add an Alias to a token in order to have the data transferred into Analytics later on
+	// As of v2.1, an alias offers a way to identify a token in a more human-readable manner,
+	// add an alias to a token in order to have the data transferred into Analytics later on
 	// so you can track both hashed and un-hashed tokens to a meaningful identifier
 	// that doesn’t expose the security of the underlying token.
-	Alias string `json:"tags,omitempty"`
+	alias string `json:"tags,omitempty"`
 }
 
 // NewSession creates a new Tyk session object with our default settings.
@@ -117,5 +117,11 @@ func (session *Session) AddAccess(apiID string, versions ...string) *Session {
 // WithPolicies adds policies to session.
 func (session *Session) WithPolicies(policyIDs ...string) *Session {
 	session.ApplyPolicies = append(session.ApplyPolicies, policyIDs...)
+	return session
+}
+
+// SetAlias sets an alias.
+func (session *Session) SetAlias(alias string) *Session {
+	session.alias = alias
 	return session
 }
