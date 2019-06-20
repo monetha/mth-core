@@ -74,7 +74,7 @@ type Session struct {
 	// add an Alias to a token in order to have the data transferred into Analytics later on
 	// so you can track both hashed and un-hashed tokens to a meaningful identifier
 	// that doesn’t expose the security of the underlying token.
-	Alias string `json:"Alias,omitempty"`
+	Alias string `json:"alias,omitempty"`
 }
 
 // NewSession creates a new Tyk session object with our default settings.
