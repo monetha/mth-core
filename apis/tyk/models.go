@@ -1,5 +1,7 @@
 package tyk
 
+import "fmt"
+
 // AllowedURL defines an allowed URL in an API.
 type AllowedURL struct {
 	URL     string   `json:"url"`
@@ -117,5 +119,11 @@ func (session *Session) AddAccess(apiID string, versions ...string) *Session {
 // WithPolicies adds policies to session.
 func (session *Session) WithPolicies(policyIDs ...string) *Session {
 	session.ApplyPolicies = append(session.ApplyPolicies, policyIDs...)
+	return session
+}
+
+// SetAlias sets an alias.
+func (session *Session) SetAlias(prefix string, ID int64) *Session {
+	session.Alias = fmt.Sprintf("%s%d", prefix, ID)
 	return session
 }
