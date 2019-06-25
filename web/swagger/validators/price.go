@@ -26,7 +26,7 @@ func (m Price) Validate(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validateDigitsAfterComma("", "body", float64(m)); err != nil {
+	if err := validateDigitsAfterComma("", "body", float64(m), 2); err != nil {
 		return err
 	}
 
@@ -51,20 +51,18 @@ func (m LineItemPrice) Validate(formats strfmt.Registry) error {
 		return err
 	}
 
-	if err := validateDigitsAfterComma("", "body", float64(m)); err != nil {
+	if err := validateDigitsAfterComma("", "body", float64(m), 6); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func validateDigitsAfterComma(path, in string, data float64) *errors.Validation {
-	const maxDigitsAfterComma = 2
-
+func validateDigitsAfterComma(path, in string, data float64, digitsAfterComma int) *errors.Validation {
 	s := strconv.FormatFloat(float64(data), 'f', -1, 64)
 	if idx := strings.LastIndex(s, "."); idx >= 0 {
-		if len(s)-1 > idx+maxDigitsAfterComma {
-			return errors.FailedPattern(path, in, "number with max. two digits after a comma")
+		if len(s)-1 > idx+digitsAfterComma {
+			return errors.FailedPattern(path, in, fmt.Sprintf("number with max. %d digits after a comma", digitsAfterComma))
 		}
 	}
 
