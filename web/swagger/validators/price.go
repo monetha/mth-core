@@ -1,6 +1,7 @@
 package validators
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 )
 
 const tenMillion float64 = 10000000
+const minusTenMillion float64 = -10000000
 
 // Price is a float64 with max. two digits after comma
 type Price float64
@@ -17,6 +19,31 @@ type Price float64
 // Validate validates the price
 func (m Price) Validate(formats strfmt.Registry) error {
 	if err := validate.Minimum("", "body", float64(m), 0.01, false); err != nil {
+		return err
+	}
+
+	if err := validate.Maximum("", "body", float64(m), tenMillion, false); err != nil {
+		return err
+	}
+
+	if err := validateDigitsAfterComma("", "body", float64(m)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// LineItemPrice is a float64 with max. two digits after comma,
+// can be less then zero for discounts applying
+type LineItemPrice float64
+
+// Validate validates the price
+func (m LineItemPrice) Validate(formats strfmt.Registry) error {
+	if m == 0 {
+		return fmt.Errorf("price can not be zero")
+	}
+
+	if err := validate.Minimum("", "body", float64(m), minusTenMillion, false); err != nil {
 		return err
 	}
 
