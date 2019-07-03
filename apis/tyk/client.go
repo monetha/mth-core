@@ -10,12 +10,13 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"path"
 
 	"gitlab.com/monetha/mth-core/http/rest"
 )
 
 const (
-	keyPath = "/tyk/keys/%s"
+	keyPath = "/tyk/keys/"
 
 	errorBytesLimit = 4000
 )
@@ -60,7 +61,7 @@ func NewRestAPIClient(httpClient *http.Client, apiURL string, authToken string) 
 
 // CreateKey creates a new Tyk key using session data and returns key ID.
 func (c *RestAPIClient) CreateKey(ctx context.Context, session *Session, key string) (string, error) {
-	reqPath := fmt.Sprintf(keyPath, key)
+	reqPath := path.Join(keyPath, key)
 	req, err := c.reqBuilder.NewEndpoint(ctx).Post(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).
 		WithBody(session).Request()
 	if err != nil {
@@ -82,7 +83,7 @@ func (c *RestAPIClient) CreateKey(ctx context.Context, session *Session, key str
 
 // RetrieveKey retrieves a key's session data.
 func (c *RestAPIClient) RetrieveKey(ctx context.Context, key string) (*Session, error) {
-	reqPath := fmt.Sprintf(keyPath, key)
+	reqPath := path.Join(keyPath, key)
 	req, err := c.reqBuilder.NewEndpoint(ctx).Get(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).Request()
 	if err != nil {
 		return nil, errorf("failed to build request: %v", err)
@@ -98,7 +99,7 @@ func (c *RestAPIClient) RetrieveKey(ctx context.Context, key string) (*Session, 
 
 // UpdateKey updates a key with PUT method, using given session data.
 func (c *RestAPIClient) UpdateKey(ctx context.Context, key string, session *Session) error {
-	reqPath := fmt.Sprintf(keyPath, key)
+	reqPath := path.Join(keyPath, key)
 	req, err := c.reqBuilder.NewEndpoint(ctx).Put(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).
 		WithBody(session).Request()
 	if err != nil {
@@ -110,7 +111,7 @@ func (c *RestAPIClient) UpdateKey(ctx context.Context, key string, session *Sess
 
 // DeleteKey deletes a key using ID.
 func (c *RestAPIClient) DeleteKey(ctx context.Context, key string) error {
-	reqPath := fmt.Sprintf(keyPath, key)
+	reqPath := path.Join(keyPath, key)
 	req, err := c.reqBuilder.NewEndpoint(ctx).Delete(reqPath).WithHeader("X-Tyk-Authorization", c.authToken).Request()
 	if err != nil {
 		return errorf("failed to build request: %v", err)
