@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"path"
 
 	httplog "gitlab.com/monetha/mth-core/http/log"
 	webcontext "gitlab.com/monetha/mth-core/web/context"
@@ -82,12 +83,20 @@ func (client *Client) WithClient(httpClient *http.Client) *Client {
 
 // Path extends the Endpoint rawURL with the given path by resolving the reference to
 // an absolute URL. If parsing errors occur, the rawURL is left unmodified.
-func (e *Endpoint) Path(path string) *Endpoint {
-	pathURL, pathErr := url.Parse(path)
-	if pathErr == nil {
-		e.rawURL = e.rawURL + pathURL.String()
+func (e *Endpoint) Path(URI string) *Endpoint {
+	parsedURL, parsedURLError := url.Parse(e.rawURL)
+	parsedURI, parsedURIError := url.Parse(URI)
+
+	if parsedURLError != nil || parsedURIError != nil {
 		return e
 	}
+
+	parsedURL.Path = path.Join(parsedURL.Path, parsedURI.Path)
+	parsedURL.RawQuery = parsedURI.RawQuery
+	parsedURL.Fragment = parsedURI.Fragment
+
+	e.rawURL = parsedURL.String()
+
 	return e
 }
 
