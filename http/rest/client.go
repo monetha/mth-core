@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+	"strings"
 
 	httplog "gitlab.com/monetha/mth-core/http/log"
 	webcontext "gitlab.com/monetha/mth-core/web/context"
@@ -39,6 +40,8 @@ type Endpoint struct {
 	rawQuery *string
 	// body
 	body interface{}
+	//formData
+	formData url.Values
 	// request context
 	context context.Context
 }
@@ -139,6 +142,12 @@ func (e *Endpoint) WithBody(body interface{}) *Endpoint {
 	return e
 }
 
+// WithFormDataBody sets the Endpoints's form data.
+func (e *Endpoint) WithFormDataBody(formData url.Values) *Endpoint {
+	e.formData = formData
+	return e
+}
+
 // URL
 
 // WithQuery sets the Endpoints's raw query string. The rawQuery value will be set as the url.RawQuery
@@ -205,7 +214,13 @@ func (e *Endpoint) Request() (*http.Request, error) {
 		bodyBuf = b
 	}
 
-	req, err := http.NewRequest(e.method, reqURL.String(), bodyBuf)
+	var req *http.Request
+	if e.formData != nil {
+		req, err = http.NewRequest(e.method, reqURL.String(), strings.NewReader(e.formData.Encode()))
+	} else {
+		req, err = http.NewRequest(e.method, reqURL.String(), bodyBuf)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -213,17 +228,21 @@ func (e *Endpoint) Request() (*http.Request, error) {
 	// add context with correlationId to request
 	req = req.WithContext(e.context)
 
-	addHeaders(req, e.header)
+	e.addHeaders(req)
 	return req, err
 }
 
 // addHeaders adds the key, value pairs from the given http.Header to the
 // request. Values for existing keys are appended to the keys values.
-func addHeaders(req *http.Request, header http.Header) {
-	req.Header.Add("Content-Type", "application/json")
-	req.Header.Add("Accept", "application/json")
+func (e *Endpoint) addHeaders(req *http.Request) {
+	if e.formData != nil {
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	} else {
+		req.Header.Add("Content-Type", "application/json")
+		req.Header.Add("Accept", "application/json")
+	}
 
-	for key, values := range header {
+	for key, values := range e.header {
 		for _, value := range values {
 			req.Header.Add(key, value)
 		}
