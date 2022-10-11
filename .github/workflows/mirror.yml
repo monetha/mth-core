@@ -1,0 +1,13 @@
+name: Mirror repo
+on: [push, delete]
+jobs:
+  mirror_repo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: monetha/actions/.github/actions/mirror_repo@v2022.10.1
+        with:
+          target_repo_url: ${{ secrets.GITLAB_REPO_URL }}
+          ssh_private_key: ${{ secrets.GITLAB_SSH_PRIVATE_KEY }}
