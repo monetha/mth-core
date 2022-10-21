@@ -2,8 +2,9 @@ name: Mirror repo
 on: [push, delete]
 jobs:
   mirror_repo:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
+      - uses: AutoModality/action-clean@v1.1.0
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
