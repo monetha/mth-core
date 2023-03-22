@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -69,7 +68,7 @@ func TestEndpointPath(t *testing.T) {
 	for _, sample := range testCases {
 		sample.endpoint.Path(sample.uri)
 		if sample.expected != sample.endpoint.rawURL {
-			t.Error(fmt.Sprintf("Expected: %s, got: %s", sample.expected, sample.endpoint.rawURL))
+			t.Errorf("Expected: %s, got: %s", sample.expected, sample.endpoint.rawURL)
 		}
 	}
 }

@@ -16,10 +16,8 @@ var (
 )
 
 type eventContext struct {
-	Event            *kinesis.Event
-	eventData        *kinesis.EventData
-	principal        interface{}
-	eventContextData interface{}
+	Event     *kinesis.Event
+	eventData *kinesis.EventData
 }
 
 // WithEvent sets up server event logging.

@@ -565,7 +565,7 @@ func TestSetWriteDeadlineConnNil(t *testing.T) {
 		t.Error("An error was expected.")
 	}
 
-	if err.Error() != "Connection is nil" {
+	if err.Error() != "connection is nil" {
 		t.Errorf("Error was not as expected: %q", err.Error())
 	}
 }

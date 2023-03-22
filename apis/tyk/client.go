@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"path"
@@ -21,16 +20,16 @@ const (
 	errorBytesLimit = 4000
 )
 
-//ErrBadRequest is returned when request was incorrect
+// ErrBadRequest is returned when request was incorrect
 var ErrBadRequest = errors.New("bad request")
 
-//ErrUnauthorized is returned when authentication information is missing
+// ErrUnauthorized is returned when authentication information is missing
 var ErrUnauthorized = errors.New("authorization required")
 
-//ErrForbidden is returned when access is denied
+// ErrForbidden is returned when access is denied
 var ErrForbidden = errors.New("forbidden")
 
-//ErrNotFound is returned when a key is not found.
+// ErrNotFound is returned when a key is not found.
 var ErrNotFound = errors.New("key not found")
 
 // RestAPI defines methods to access Tyk REST API.
@@ -154,7 +153,7 @@ func (c *RestAPIClient) do(req *http.Request, respObjPtr interface{}) error {
 }
 
 func errorify(r io.Reader) error {
-	b, err := ioutil.ReadAll(r)
+	b, err := io.ReadAll(r)
 	if err != nil {
 		return errorf("failed to read bytes to errorify: %v", err)
 	}
