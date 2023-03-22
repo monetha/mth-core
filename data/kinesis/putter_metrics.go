@@ -1,7 +1,7 @@
 package kinesis
 
 import (
-	"gitlab.com/monetha/mth-core/data/metrics"
+	"github.com/monetha/mth-core/data/metrics"
 )
 
 // AddEventPutterMetrics adds metrics by wrapping handler

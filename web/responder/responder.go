@@ -5,9 +5,9 @@ import (
 	"reflect"
 
 	"github.com/go-openapi/runtime"
-	"gitlab.com/monetha/mth-core/http/errcode"
-	"gitlab.com/monetha/mth-core/log"
-	webcontext "gitlab.com/monetha/mth-core/web/context"
+	"github.com/monetha/mth-core/http/errcode"
+	"github.com/monetha/mth-core/log"
+	webcontext "github.com/monetha/mth-core/web/context"
 )
 
 // Responder implements middleware.Responder, to use while generating responses in our handlers.
@@ -22,10 +22,12 @@ import (
 //   - InternalError: Common error code and message
 //
 // For all these reasons, we have easy responses which are like:
-//   return resp.InternalError(err, "this is the log message (reason)").Msg("oops! sorry, request failed")
+//
+//	return resp.InternalError(err, "this is the log message (reason)").Msg("oops! sorry, request failed")
 //
 // So it's possible to override any field. However, it's also possible to construct responses from scratch with ease:
-//   return resp.Status(400).Code(errcode.CodeBadNumber).Msg("the number is too large").Err(moreSpecificErr)
+//
+//	return resp.Status(400).Code(errcode.CodeBadNumber).Msg("the number is too large").Err(moreSpecificErr)
 //
 // This will cause "BAD_NUMBER" and "the number is too large" in response, while it logs the error with same
 // message. If we need a more specific logging message. Then we can provide it with Reason().
@@ -108,9 +110,9 @@ func (resp *Responder) trySetErrorResponse() {
 }
 
 // write writes response:
-//   1) Set header fields.
-//   2) Write header with status.
-//   3) Write body.
+//  1. Set header fields.
+//  2. Write header with status.
+//  3. Write body.
 func (resp *Responder) write(rw http.ResponseWriter, producer runtime.Producer) {
 	// If response is nil, remove Content-Type header field only.
 	if resp.body == nil {

@@ -1,7 +1,7 @@
 package responder
 
 import (
-	"gitlab.com/monetha/mth-core/http/errcode"
+	"github.com/monetha/mth-core/http/errcode"
 )
 
 // OK sets response to be an "OK" response with no errors.

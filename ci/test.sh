@@ -9,8 +9,8 @@ if [ -z "$CI_PIPELINE_ID" ]
     exit 1
 fi
 
-GOLANG_VERSION=1.11
-PACKAGE_NAME=gitlab.com/monetha/mth-core
+GOLANG_VERSION=1.19
+PACKAGE_NAME=github.com/monetha/mth-core
 PACKAGE_FULL_PATH=/go/src/$PACKAGE_NAME
 
 docker run -i --rm \

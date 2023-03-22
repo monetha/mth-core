@@ -210,7 +210,7 @@ func TestPostgresqlURLError(t *testing.T) {
 		t.Error("An error was expected")
 	}
 
-	if err.Error() != "parse postgresql://pqtest\\\\/:password@localhost/pqtest?read_timeout=500&sslmode=verify-full&write_timeout=100: invalid character \"\\\\\" in host name" {
+	if err.Error() != "parse \"postgresql://pqtest\\\\\\\\/:password@localhost/pqtest?read_timeout=500&sslmode=verify-full&write_timeout=100\": invalid character \"\\\\\" in host name" {
 		t.Errorf("The error was not as expected: %q", err.Error())
 	}
 

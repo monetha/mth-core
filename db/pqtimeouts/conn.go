@@ -95,5 +95,5 @@ func (t *timeoutConn) SetWriteDeadline(time time.Time) error {
 	if t.conn != nil {
 		return t.conn.SetWriteDeadline(time)
 	}
-	return fmt.Errorf("Connection is nil")
+	return fmt.Errorf("connection is nil")
 }

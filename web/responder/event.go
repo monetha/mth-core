@@ -3,7 +3,7 @@ package responder
 import (
 	"fmt"
 
-	"gitlab.com/monetha/mth-core/data/kinesis"
+	"github.com/monetha/mth-core/data/kinesis"
 )
 
 var (
@@ -16,10 +16,8 @@ var (
 )
 
 type eventContext struct {
-	Event            *kinesis.Event
-	eventData        *kinesis.EventData
-	principal        interface{}
-	eventContextData interface{}
+	Event     *kinesis.Event
+	eventData *kinesis.EventData
 }
 
 // WithEvent sets up server event logging.

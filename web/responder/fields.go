@@ -1,6 +1,6 @@
 package responder
 
-import "gitlab.com/monetha/mth-core/http/errcode"
+import "github.com/monetha/mth-core/http/errcode"
 
 // Status sets response status code.
 func (resp *Responder) Status(status int) *Responder {

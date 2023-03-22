@@ -3,7 +3,7 @@ package web
 import (
 	"context"
 
-	"gitlab.com/monetha/mth-core/log"
+	"github.com/monetha/mth-core/log"
 )
 
 // NewLogger returns a request-scoped logger. Use this to log info/errors
