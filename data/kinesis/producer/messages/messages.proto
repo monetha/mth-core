@@ -1,6 +1,6 @@
 syntax = "proto2";
 package messages;
-option go_package = "gitlab.com/monetha/mth-core/data/kinesis/producer/messages";
+option go_package = "github.com/monetha/mth-core/data/kinesis/producer/messages";
 
 message AggregatedRecord {
   repeated string partition_key_table     = 1;

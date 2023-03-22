@@ -3,8 +3,8 @@ package log
 import (
 	"net/http"
 
-	corelog "gitlab.com/monetha/mth-core/log"
-	webcontext "gitlab.com/monetha/mth-core/web/context"
+	corelog "github.com/monetha/mth-core/log"
+	webcontext "github.com/monetha/mth-core/web/context"
 	"go.uber.org/zap"
 )
 

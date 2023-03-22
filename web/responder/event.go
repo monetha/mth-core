@@ -3,7 +3,7 @@ package responder
 import (
 	"fmt"
 
-	"gitlab.com/monetha/mth-core/data/kinesis"
+	"github.com/monetha/mth-core/data/kinesis"
 )
 
 var (

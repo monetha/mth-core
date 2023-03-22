@@ -11,9 +11,9 @@ import (
 	"path"
 	"strings"
 
-	httplog "gitlab.com/monetha/mth-core/http/log"
-	webcontext "gitlab.com/monetha/mth-core/web/context"
-	h "gitlab.com/monetha/mth-core/web/header"
+	httplog "github.com/monetha/mth-core/http/log"
+	webcontext "github.com/monetha/mth-core/web/context"
+	h "github.com/monetha/mth-core/web/header"
 )
 
 // Types

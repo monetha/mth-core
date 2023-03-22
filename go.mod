@@ -1,4 +1,4 @@
-module gitlab.com/monetha/mth-core
+module github.com/monetha/mth-core
 
 go 1.19
 

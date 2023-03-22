@@ -1,5 +1,5 @@
 SHELL := bash
-PACKAGE_NAME := gitlab.com/monetha/mth-core
+PACKAGE_NAME := github.com/monetha/mth-core
 
 M = $(shell printf "\033[32;1m▶▶▶▶▶\033[0m")
 

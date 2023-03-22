@@ -3,9 +3,9 @@ package middleware
 import (
 	"net/http"
 
+	webcontext "github.com/monetha/mth-core/web/context"
+	"github.com/monetha/mth-core/web/header"
 	uuid "github.com/satori/go.uuid"
-	webcontext "gitlab.com/monetha/mth-core/web/context"
-	"gitlab.com/monetha/mth-core/web/header"
 )
 
 var maxCorrelationIDLength = 200

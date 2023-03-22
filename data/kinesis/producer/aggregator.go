@@ -5,7 +5,7 @@ import (
 	"crypto/md5"
 
 	k "github.com/aws/aws-sdk-go/service/kinesis"
-	"gitlab.com/monetha/mth-core/data/kinesis/producer/messages"
+	"github.com/monetha/mth-core/data/kinesis/producer/messages"
 	"google.golang.org/protobuf/proto"
 )
 

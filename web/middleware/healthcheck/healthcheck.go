@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"gitlab.com/monetha/mth-core/log"
+	"github.com/monetha/mth-core/log"
 )
 
 var (

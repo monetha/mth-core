@@ -10,10 +10,10 @@ import (
 	"strings"
 	"time"
 
-	"gitlab.com/monetha/mth-core/log"
-	"gitlab.com/monetha/mth-core/web"
-	webcontext "gitlab.com/monetha/mth-core/web/context"
-	"gitlab.com/monetha/mth-core/web/header"
+	"github.com/monetha/mth-core/log"
+	"github.com/monetha/mth-core/web"
+	webcontext "github.com/monetha/mth-core/web/context"
+	"github.com/monetha/mth-core/web/header"
 	"go.uber.org/zap"
 )
 

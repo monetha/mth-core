@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	corejwt "gitlab.com/monetha/mth-core/security/jwt"
+	corejwt "github.com/monetha/mth-core/security/jwt"
 )
 
 // TokenBuilder is fluent syntax for building mth-token token

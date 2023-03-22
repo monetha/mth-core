@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"path"
 
-	"gitlab.com/monetha/mth-core/http/rest"
+	"github.com/monetha/mth-core/http/rest"
 )
 
 const (

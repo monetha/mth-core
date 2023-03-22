@@ -7,7 +7,7 @@ the same as lib/pq through the database/sql package:
 	import (
 		"database/sql"
 
-		_ "gitlab.com/mth-core/db/pqtimeouts"
+		_ "github.com/mth-core/db/pqtimeouts"
 	)
 
 	func main() {

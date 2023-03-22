@@ -1,6 +1,6 @@
 package kinesis
 
-import "gitlab.com/monetha/mth-core/utils"
+import "github.com/monetha/mth-core/utils"
 
 // EventType is a type for server event.
 type EventType string

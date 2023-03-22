@@ -5,9 +5,9 @@ import (
 	"reflect"
 
 	"github.com/go-openapi/runtime"
-	"gitlab.com/monetha/mth-core/http/errcode"
-	"gitlab.com/monetha/mth-core/log"
-	webcontext "gitlab.com/monetha/mth-core/web/context"
+	"github.com/monetha/mth-core/http/errcode"
+	"github.com/monetha/mth-core/log"
+	webcontext "github.com/monetha/mth-core/web/context"
 )
 
 // Responder implements middleware.Responder, to use while generating responses in our handlers.
