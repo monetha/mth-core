@@ -5,7 +5,8 @@ import (
 	"crypto/md5"
 
 	k "github.com/aws/aws-sdk-go/service/kinesis"
-	"github.com/golang/protobuf/proto"
+	"gitlab.com/monetha/mth-core/data/kinesis/producer/messages"
+	"google.golang.org/protobuf/proto"
 )
 
 var (
@@ -14,7 +15,7 @@ var (
 
 // Aggregator used to aggregate records into kinesis.PutRecordsRequestEntry
 type Aggregator struct {
-	buf    []*Record
+	buf    []*messages.Record
 	pkeys  []string
 	nbytes int
 }
@@ -41,7 +42,7 @@ func (a *Aggregator) Put(data []byte, partitionKey string) {
 		a.nbytes += len([]byte(partitionKey))
 	}
 	keyIndex := uint64(len(a.pkeys) - 1)
-	a.buf = append(a.buf, &Record{
+	a.buf = append(a.buf, &messages.Record{
 		Data:              data,
 		PartitionKeyIndex: &keyIndex,
 	})
@@ -53,7 +54,7 @@ func (a *Aggregator) Put(data []byte, partitionKey string) {
 //
 // If you interested to know more about it. see: aggregation-format.md
 func (a *Aggregator) Drain() (*k.PutRecordsRequestEntry, error) {
-	data, err := proto.Marshal(&AggregatedRecord{
+	data, err := proto.Marshal(&messages.AggregatedRecord{
 		PartitionKeyTable: a.pkeys,
 		Records:           a.buf,
 	})
@@ -74,7 +75,7 @@ func (a *Aggregator) Drain() (*k.PutRecordsRequestEntry, error) {
 }
 
 func (a *Aggregator) clear() {
-	a.buf = make([]*Record, 0)
+	a.buf = make([]*messages.Record, 0)
 	a.pkeys = make([]string, 0)
 	a.nbytes = 0
 }
@@ -86,7 +87,7 @@ func isAggregated(entry *k.PutRecordsRequestEntry) bool {
 
 func extractRecords(entry *k.PutRecordsRequestEntry) (out []*k.PutRecordsRequestEntry) {
 	src := entry.Data[len(magicNumber) : len(entry.Data)-md5.Size]
-	dest := new(AggregatedRecord)
+	dest := new(messages.AggregatedRecord)
 	err := proto.Unmarshal(src, dest)
 	if err != nil {
 		return
