@@ -9,12 +9,13 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	metrics "github.com/rcrowley/go-metrics"
+	"github.com/rcrowley/go-metrics"
 )
 
 var (
 	startTime           = time.Now().UTC()
 	threadCreateProfile = pprof.Lookup("threadcreate")
+	defObjectives       = map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001}
 )
 
 func init() {
@@ -304,9 +305,10 @@ func (r *Registry) RegisterTimer(name string, timer *Timer) error {
 	}))
 
 	summary := prometheus.NewSummary(prometheus.SummaryOpts{
-		Namespace: r.pName,
-		Name:      toPrometheusName(name + "_seconds"),
-		Help:      name,
+		Namespace:  r.pName,
+		Name:       toPrometheusName(name + "_seconds"),
+		Help:       name,
+		Objectives: defObjectives,
 	})
 	prometheus.MustRegister(summary)
 
@@ -400,9 +402,10 @@ func (r *Registry) RegisterHistogram(name string, histogram *Histogram, units st
 	}))
 
 	summary := prometheus.NewSummary(prometheus.SummaryOpts{
-		Namespace: r.pName,
-		Name:      toPrometheusName(name + "_" + units),
-		Help:      name,
+		Namespace:  r.pName,
+		Name:       toPrometheusName(name + "_" + units),
+		Help:       name,
+		Objectives: defObjectives,
 	})
 	prometheus.MustRegister(summary)
 
