@@ -17,7 +17,7 @@ require (
 	github.com/rs/cors v1.4.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.2
-	go.temporal.io/sdk v1.22.2
+	go.temporal.io/sdk v1.21.2
 	go.uber.org/zap v1.24.0
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616
 	golang.org/x/tools v0.7.0
@@ -30,7 +30,6 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1-0.20180310210909-975f53781597 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf // indirect
-	github.com/benbjohnson/clock v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
