@@ -5,6 +5,7 @@ import (
 
 	"go.temporal.io/sdk/log"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 // ZapAdapter is a log.Logger implementation that wraps a Zap logger.
@@ -21,6 +22,17 @@ func NewZapAdapter(zapLogger *zap.Logger) *ZapAdapter {
 
 // ZapLogger returns the underlying Zap logger.
 func (log *ZapAdapter) fields(keyvals []interface{}) []zap.Field {
+
+	// If keyvals are zap fields - expand them to key-value pairs
+	expKV := make([]interface{}, 0)
+	for _, v := range keyvals {
+		if zv, ok := v.(zapcore.Field); ok {
+			expKV = append(expKV, zv.Key, zv.Interface)
+		} else {
+			expKV = append(expKV, v)
+		}
+	}
+
 	if len(keyvals)%2 != 0 {
 		return []zap.Field{zap.Error(fmt.Errorf("odd number of keyvals pairs: %v", keyvals))}
 	}
