@@ -33,17 +33,17 @@ func (log *ZapAdapter) fields(keyvals []interface{}) []zap.Field {
 		}
 	}
 
-	if len(keyvals)%2 != 0 {
-		return []zap.Field{zap.Error(fmt.Errorf("odd number of keyvals pairs: %v", keyvals))}
+	if len(expKV)%2 != 0 {
+		return []zap.Field{zap.Error(fmt.Errorf("odd number of keyvals pairs: %v", expKV))}
 	}
 
 	var fields []zap.Field
-	for i := 0; i < len(keyvals); i += 2 {
-		key, ok := keyvals[i].(string)
+	for i := 0; i < len(expKV); i += 2 {
+		key, ok := expKV[i].(string)
 		if !ok {
-			key = fmt.Sprintf("%v", keyvals[i])
+			key = fmt.Sprintf("%v", expKV[i])
 		}
-		fields = append(fields, zap.Any(key, keyvals[i+1]))
+		fields = append(fields, zap.Any(key, expKV[i+1]))
 	}
 
 	return fields
