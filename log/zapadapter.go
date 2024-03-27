@@ -8,15 +8,23 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-// ZapAdapter is a log.Logger implementation that wraps a Zap logger.
+// ZapAdapterInterface is a log.Logger implementation that wraps a Zap logger.
+type ZapAdapterInterface interface {
+	Debug(msg string, keyvals ...interface{})
+	Info(msg string, keyvals ...interface{})
+	Warn(msg string, keyvals ...interface{})
+	Error(msg string, keyvals ...interface{})
+	GetZap() *zap.Logger
+}
+
 type ZapAdapter struct {
-	zl *zap.Logger
+	Zl *zap.Logger
 }
 
 // NewZapAdapter creates a new ZapAdapter.
 func NewZapAdapter(zapLogger *zap.Logger) *ZapAdapter {
 	return &ZapAdapter{
-		zl: zapLogger.WithOptions(zap.AddCallerSkip(1)),
+		Zl: zapLogger.WithOptions(zap.AddCallerSkip(1)),
 	}
 }
 
@@ -51,25 +59,30 @@ func (log *ZapAdapter) fields(keyvals []interface{}) []zap.Field {
 
 // Debug logs a message at debug level.
 func (log *ZapAdapter) Debug(msg string, keyvals ...interface{}) {
-	log.zl.Debug(msg, log.fields(keyvals)...)
+	log.Zl.Debug(msg, log.fields(keyvals)...)
 }
 
 // Info logs a message at info level.
 func (log *ZapAdapter) Info(msg string, keyvals ...interface{}) {
-	log.zl.Info(msg, log.fields(keyvals)...)
+	log.Zl.Info(msg, log.fields(keyvals)...)
 }
 
 // Warn logs a message at warn level.
 func (log *ZapAdapter) Warn(msg string, keyvals ...interface{}) {
-	log.zl.Warn(msg, log.fields(keyvals)...)
+	log.Zl.Warn(msg, log.fields(keyvals)...)
 }
 
 // Error logs a message at error level.
 func (log *ZapAdapter) Error(msg string, keyvals ...interface{}) {
-	log.zl.Error(msg, log.fields(keyvals)...)
+	log.Zl.Error(msg, log.fields(keyvals)...)
 }
 
 // With returns a child logger with the provided keyvals.
 func (log *ZapAdapter) With(keyvals ...interface{}) log.Logger {
-	return &ZapAdapter{zl: log.zl.With(log.fields(keyvals)...)}
+	return &ZapAdapter{Zl: log.Zl.With(log.fields(keyvals)...)}
+}
+
+// GetZap returns a child logger with the provided keyvals.
+func (log *ZapAdapter) GetZap() *zap.Logger {
+	return log.Zl
 }
